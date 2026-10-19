@@ -28,6 +28,7 @@ https://github.com/andreibox44-hub/thermo (ветка `main`).
 
 ```
 index.html, catalog.html, product.html, cart.html, contacts.html   — страницы магазина
+account.html                — личный кабинет (вход, регистрация, мои данные, мои заказы)
 terms.html, privacy.html, returns.html, delivery.html               — юридические страницы
 assets/css/style.css        — все стили (токены цветов в :root, адаптив внизу файла)
 assets/img/logo.svg         — значок логотипа (зелёный квадрат, красный огонёк): шапка, подвал, favicon
@@ -35,10 +36,15 @@ assets/js/texts.js          — все тексты (window.TEXTS)
 assets/js/products.js       — данные товаров (window.PRODUCTS)
 assets/js/app.js            — общее: переводы, формат цен, корзина (localStorage), шапка, подвал,
                               карточка товара, картинки товаров в SVG (heaterSVG), баннер cookies
-assets/js/pages/*.js        — скрипт каждой страницы (home, catalog, product, cart, contacts, legal)
+assets/js/pages/*.js        — скрипт каждой страницы (home, catalog, product, cart, contacts, legal, account)
+assets/js/config.js         — адрес и публичный ключ Supabase (пусто = кабинет «скоро заработает»)
+assets/js/auth.js           — App.auth: вход, регистрация, профиль, заказы, удаление аккаунта
+assets/js/vendor/supabase.js — библиотека supabase-js 2.57.4 (лежит локально, без CDN — ради GDPR)
+supabase/setup.sql          — таблицы profiles и orders, правила доступа (RLS), функция delete_account
 ```
 
 Каждая страница подключает по порядку: `texts.js`, `products.js`, `app.js`, скрипт страницы.
+Кабинет и корзина дополнительно подключают после `app.js`: `config.js`, `vendor/supabase.js`, `auth.js`.
 Юридические страницы — один шаблон: `<body data-page="legal" data-doc="terms">` + `pages/legal.js`.
 
 ## Что сделано
@@ -55,6 +61,11 @@ assets/js/pages/*.js        — скрипт каждой страницы (home
   данные продавца в `texts.js → legal.seller`.
 - Подвал: ссылки на документы, значки ANPC (SAL) и SOL, «Настройки cookies».
 - Баннер cookies: Google Fonts загружаются только после «Принять все».
+- Личный кабинет на Supabase: регистрация по почте и паролю, «Мои данные» (подставляются в форму
+  заказа), «Мои заказы» (заказы, оформленные после входа, сохраняются в таблицу `orders`), выход,
+  удаление аккаунта. Без входа заказ по-прежнему демонстрационный. Число регистраций смотреть в
+  панели Supabase: Authentication → Users. Статус заказа меняется в панели (Table Editor → orders):
+  new, processing, shipped, done, cancelled.
 
 ## Что осталось сделать
 
@@ -68,3 +79,9 @@ assets/js/pages/*.js        — скрипт каждой страницы (home
 - Настоящая отправка заказов и сообщений (сейчас формы демонстрационные, данные никуда не уходят).
 - Фотографии товаров вместо SVG-картинок (`heaterSVG` в `app.js`).
 - Хостинг сайта.
+- Подключить Supabase: создать проект (регион — Frankfurt, ЕС), выполнить `supabase/setup.sql`,
+  вписать URL и publishable key в `config.js`. Пока сайт не на хостинге — отключить «Confirm email»
+  (Authentication → Sign In / Providers → Email). После хостинга — указать адрес сайта в
+  Authentication → URL Configuration и подключить свою почту (SMTP): встроенная отправляет мало писем.
+- Вписать регион хранения Supabase в политику конфиденциальности (сейчас «уточняется»).
+- Сохранять в базу и заказы без входа (сейчас сохраняются только заказы из личного кабинета).

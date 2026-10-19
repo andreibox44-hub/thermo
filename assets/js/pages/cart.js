@@ -4,6 +4,8 @@
   var t = A.t;
   var root = document.getElementById('cart-root');
   var ordered = false;
+  var auth = A.auth && A.auth.enabled ? A.auth : null;
+  var account = null; // { user, profile }, если покупатель вошёл
   var crumbs = A.breadcrumbs([{ label: t('nav.home'), href: 'index.html' }, { label: t('nav.cart') }]);
 
   function renderEmpty() {
@@ -41,6 +43,7 @@
           '<ul class="cart__items" id="cart-items"></ul>' +
           '<section class="panel">' +
             '<h2>' + t('cart.checkout') + '</h2>' +
+            '<p class="muted" id="checkout-account" hidden></p>' +
             '<form class="form form--grid" id="checkout" novalidate>' +
               field('name', { required: true, autocomplete: 'name' }) +
               field('phone', { required: true, type: 'tel', placeholder: 'cart.form.phonePlaceholder', autocomplete: 'tel' }) +
@@ -63,6 +66,34 @@
       if (window.confirm(t('cart.clearConfirm'))) A.cart.clear();
     });
     document.getElementById('checkout').addEventListener('submit', submit);
+    applyAccount();
+  }
+
+  /* Личный кабинет: подсказка над формой и данные из профиля */
+  function applyAccount() {
+    var note = document.getElementById('checkout-account');
+    if (!note || !auth) return;
+    note.hidden = false;
+    if (!account) {
+      note.innerHTML = t('cart.account.guest', { signIn: '<a href="account.html">' + t('cart.account.signInLink') + '</a>' });
+      return;
+    }
+    note.textContent = t('cart.account.signedIn', { email: account.user.email });
+    var form = document.getElementById('checkout');
+    var p = account.profile;
+    var fill = { name: p.name, phone: p.phone, email: account.user.email, city: p.city, address: p.address };
+    Object.keys(fill).forEach(function (n) {
+      if (fill[n] && !form.elements[n].value) form.elements[n].value = fill[n];
+    });
+  }
+
+  function loadAccount() {
+    if (!auth) return;
+    auth.currentUser().then(function (user) {
+      if (!user) return null;
+      return auth.profile(user.id).then(function (profile) { account = { user: user, profile: profile }; });
+    }).catch(function () { /* без кабинета корзина работает как обычно */ })
+      .then(function () { if (!ordered) applyAccount(); });
   }
 
   function renderItems(totals) {
@@ -94,7 +125,8 @@
       '</dl>' +
       (totals.hasUnpriced ? '<div class="summary__info">' + A.icon('clock') + '<span>' + t('cart.priceNote') + '</span></div>' : '') +
       '<div class="summary__total' + (totals.hasUnpriced ? ' is-request' : '') + '"><span>' + t('cart.total') + '</span><b>' + total + '</b></div>' +
-      '<button class="btn btn--primary btn--lg btn--block" type="submit" form="checkout">' + t('cart.form.submit') + '</button>' +
+      '<button class="btn btn--primary btn--lg btn--block" type="submit" form="checkout" id="checkout-submit">' + t('cart.form.submit') + '</button>' +
+      '<p class="form__error" id="checkout-error" role="alert"></p>' +
       '<p class="summary__note">' + t('cart.form.agree', {
         terms: '<a href="' + A.legalPages.terms + '">' + t('cart.form.agreeTerms') + '</a>',
         privacy: '<a href="' + A.legalPages.privacy + '">' + t('cart.form.agreePrivacy') + '</a>'
@@ -141,20 +173,51 @@
     var first = Object.keys(errors)[0];
     if (first) { form.elements[first].focus(); return; }
 
-    // Демонстрация: заказ никуда не отправляется
-    var number = String(Math.floor(100000 + Math.random() * 900000));
+    // Без входа — демонстрация: заказ никуда не отправляется
+    if (!account) {
+      success(String(Math.floor(100000 + Math.random() * 900000)), false);
+      return;
+    }
+
+    // Покупатель вошёл: заказ сохраняется в его личном кабинете
+    var btn = document.getElementById('checkout-submit');
+    var errorEl = document.getElementById('checkout-error');
+    btn.disabled = true;
+    errorEl.textContent = '';
+    auth.createOrder({
+      items: A.cart.read().map(function (i) { return { id: i.id, qty: i.qty, price: A.getProduct(i.id).price }; }),
+      name: v('name'),
+      phone: v('phone'),
+      email: v('email') || null,
+      city: v('city'),
+      address: v('address'),
+      comment: v('comment') || null,
+      payment: form.elements.payment.value
+    }).then(function (number) {
+      success(number, true);
+    }, function (err) {
+      btn.disabled = false;
+      errorEl.textContent = t('cart.sendError', { reason: auth.errorText(err) });
+    });
+  }
+
+  function success(number, saved) {
     ordered = true;
     A.cart.clear();
     root.innerHTML =
       '<div class="empty empty--page empty--success">' +
         '<div class="empty__icon">' + A.icon('check') + '</div>' +
         '<h1>' + t('cart.success.title') + '</h1>' +
-        '<p>' + t('cart.success.text', { number: number }) + '</p>' +
-        '<a class="btn btn--primary" href="index.html">' + t('cart.success.button') + '</a>' +
+        '<p>' + t('cart.success.text', { number: number }) + (saved ? ' ' + t('cart.success.saved') : '') + '</p>' +
+        '<div class="empty__actions">' +
+          (saved ? '<a class="btn btn--ghost" href="account.html">' + t('cart.success.toAccount') + '</a>' : '') +
+          '<a class="btn btn--primary" href="index.html">' + t('cart.success.button') + '</a>' +
+        '</div>' +
       '</div>';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   document.addEventListener('cart:change', function () { if (!ordered) render(); });
   render();
+  loadAccount();
 })();

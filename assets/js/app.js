@@ -257,7 +257,9 @@
     fan: '<circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-6 3.5-6s2 4-1.5 6.5M14 12c4 0 6 1 6 3.5s-4 2-6.5-1.5M12 14c0 4-1 6-3.5 6s-2-4 1.5-6.5M10 12c-4 0-6-1-6-3.5s4-2 6.5 1.5"/>',
     lifetime: '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M12 8v4l2.5 1.5"/>',
     alert: '<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
-    chevron: '<path d="M9 6l6 6-6 6"/>'
+    chevron: '<path d="M9 6l6 6-6 6"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>',
+    logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h10"/>'
   };
 
   function icon(name, cls) {
@@ -494,6 +496,8 @@
           '<div class="header__actions">' +
             telLink(phone, '<b>' + phone + '</b><small>' + t('header.phoneHint') + '</small>', 'header__phone') +
             langSwitch +
+            '<a class="account-btn' + (page === 'account' ? ' is-active' : '') + '" href="account.html" aria-label="' + esc(t('nav.account')) + '" title="' + esc(t('nav.account')) + '"' +
+              (page === 'account' ? ' aria-current="page"' : '') + '>' + icon('user') + '</a>' +
             '<a class="cart-btn' + (page === 'cart' ? ' is-active' : '') + '" href="cart.html" id="cart-btn">' + icon('cart') +
               '<span class="cart-btn__label">' + t('nav.cart') + '</span><span class="cart-btn__count" id="cart-count"></span></a>' +
             '<button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="' + esc(t('header.openMenu')) + '">' + icon('menu') + '</button>' +
