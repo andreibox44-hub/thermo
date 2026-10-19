@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="contacts">
+  <div id="site-header"></div>
+
+  <main id="main" class="page">
+    <div class="container">
+      <div id="crumbs"></div>
+      <div class="page__head page__head--stack">
+        <h1 class="page__title" data-i18n="contacts.title"></h1>
+        <p class="lead" data-i18n="contacts.subtitle"></p>
+      </div>
+
+      <div class="contact-cards" id="contact-cards"></div>
+
+      <div class="contacts-layout">
+        <div class="map" role="img" data-i18n-aria="contacts.map" id="map"></div>
+
+        <section class="panel">
+          <h2 data-i18n="contacts.formTitle"></h2>
+          <p class="muted" data-i18n="contacts.formText"></p>
+          <form id="contact-form" class="form" novalidate>
+            <div class="field">
+              <label class="field__label" for="c-name" data-i18n="contacts.form.name"></label>
+              <input class="input" id="c-name" name="name" autocomplete="name">
+              <span class="field__error" data-error-for="name"></span>
+            </div>
+            <div class="field">
+              <label class="field__label" for="c-contact" data-i18n="contacts.form.contact"></label>
+              <input class="input" id="c-contact" name="contact" autocomplete="email">
+              <span class="field__error" data-error-for="contact"></span>
+            </div>
+            <div class="field">
+              <label class="field__label" for="c-message" data-i18n="contacts.form.message"></label>
+              <textarea class="input" id="c-message" name="message" rows="4" data-i18n-placeholder="contacts.form.messagePlaceholder"></textarea>
+              <span class="field__error" data-error-for="message"></span>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit"><span data-i18n="contacts.form.submit"></span></button>
+          </form>
+        </section>
+      </div>
+
+      <section class="section section--tight" id="faq">
+        <h2 class="section__title" data-i18n="contacts.faqTitle"></h2>
+        <div class="faq" id="faq-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/texts.js"></script>
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pages/contacts.js"></script>
+</body>
+</html>

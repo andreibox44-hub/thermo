@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <span class="pill" data-i18n="home.hero.badge"></span>
+          <h1 class="hero__title" data-i18n="home.hero.title"></h1>
+          <p class="lead" data-i18n="home.hero.text"></p>
+          <div class="hero__actions">
+            <a class="btn btn--primary btn--lg" href="catalog.html"><span data-i18n="home.hero.cta"></span></a>
+            <a class="btn btn--ghost btn--lg" href="#calc"><span data-i18n="home.hero.ctaSecondary"></span></a>
+          </div>
+          <ul class="hero__stats" id="hero-stats"></ul>
+        </div>
+        <div class="hero__visual" id="hero-visual"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="section__title" data-i18n="home.benefits.title"></h2>
+        <div class="benefits" id="benefits"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section__head">
+          <div>
+            <h2 class="section__title" data-i18n="home.categories.title"></h2>
+            <p class="section__subtitle" data-i18n="home.categories.subtitle"></p>
+          </div>
+        </div>
+        <div class="categories" id="categories"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="section__title" data-i18n="home.popular.title"></h2>
+          <a class="link-arrow" href="catalog.html" id="popular-all"></a>
+        </div>
+        <div class="grid" id="popular"></div>
+      </div>
+    </section>
+
+    <section class="section" id="calc">
+      <div class="container">
+        <div class="calc">
+          <div class="calc__intro">
+            <h2 class="section__title" data-i18n="home.calc.title"></h2>
+            <p data-i18n="home.calc.text"></p>
+          </div>
+          <form class="calc__form" id="calc-form">
+            <div class="field">
+              <label class="field__label" for="calc-area" data-i18n="home.calc.areaLabel"></label>
+              <div class="range">
+                <input type="range" id="calc-area-range" min="5" max="200" value="20" aria-hidden="true" tabindex="-1">
+                <input class="input range__value" type="number" id="calc-area" min="5" max="200" value="20">
+              </div>
+            </div>
+            <div class="calc__result">
+              <span data-i18n="home.calc.result"></span>
+              <output id="calc-result" aria-live="polite"></output>
+            </div>
+            <a class="btn btn--primary btn--block" id="calc-link" href="catalog.html"><span data-i18n="home.calc.showModels"></span></a>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-band">
+          <div>
+            <h2 data-i18n="home.cta.title"></h2>
+            <p data-i18n="home.cta.text"></p>
+          </div>
+          <a class="btn btn--light btn--lg" href="contacts.html"><span data-i18n="home.cta.button"></span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/texts.js"></script>
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pages/home.js"></script>
+</body>
+</html>

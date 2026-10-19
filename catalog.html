@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="catalog">
+  <div id="site-header"></div>
+
+  <main id="main" class="page">
+    <div class="container">
+      <div id="crumbs"></div>
+      <div class="page__head">
+        <h1 class="page__title" data-i18n="catalog.title"></h1>
+        <span class="page__count" id="found"></span>
+      </div>
+
+      <div class="toolbar">
+        <label class="search">
+          <span class="search__icon" id="search-icon"></span>
+          <input class="input" type="search" id="search" data-i18n-placeholder="catalog.search" data-i18n-aria="catalog.search">
+        </label>
+        <label class="select">
+          <span class="visually-hidden" data-i18n="catalog.sortLabel"></span>
+          <select class="input" id="sort"></select>
+        </label>
+        <button class="btn btn--ghost toolbar__filters" type="button" id="filters-open"></button>
+      </div>
+
+      <div id="chips" class="chips"></div>
+
+      <div class="catalog">
+        <aside class="filters" id="filters" aria-labelledby="filters-title">
+          <div class="filters__head">
+            <h2 id="filters-title" data-i18n="catalog.filters"></h2>
+            <button class="icon-btn" type="button" id="filters-close" data-i18n-aria="catalog.filtersClose"></button>
+          </div>
+          <form id="filters-form" class="filters__body">
+            <fieldset class="filter">
+              <legend data-i18n="catalog.type"></legend>
+              <div id="filter-types"></div>
+            </fieldset>
+            <fieldset class="filter">
+              <legend><label for="filter-area" data-i18n="catalog.area"></label></legend>
+              <input class="input" type="number" id="filter-area" name="area" min="1" step="1" inputmode="numeric" data-i18n-placeholder="catalog.areaPlaceholder">
+            </fieldset>
+            <fieldset class="filter" id="filter-price">
+              <legend data-i18n="catalog.price"></legend>
+              <div class="filter__range">
+                <input class="input" type="number" name="priceMin" min="0" step="100" data-i18n-placeholder="catalog.priceFrom" data-i18n-aria="catalog.priceFrom">
+                <span>—</span>
+                <input class="input" type="number" name="priceMax" min="0" step="100" data-i18n-placeholder="catalog.priceTo" data-i18n-aria="catalog.priceTo">
+              </div>
+            </fieldset>
+            <fieldset class="filter">
+              <legend data-i18n="catalog.power"></legend>
+              <div id="filter-power"></div>
+            </fieldset>
+          </form>
+          <div class="filters__foot">
+            <button class="btn btn--ghost" type="button" id="filters-reset"><span data-i18n="catalog.reset"></span></button>
+            <button class="btn btn--primary filters__apply" type="button" id="filters-apply"></button>
+          </div>
+        </aside>
+        <div class="filters__backdrop" id="filters-backdrop"></div>
+
+        <section class="catalog__results">
+          <div class="grid grid--catalog" id="grid"></div>
+          <div class="empty" id="empty" hidden>
+            <div class="empty__icon" id="empty-icon"></div>
+            <h2 data-i18n="catalog.emptyTitle"></h2>
+            <p data-i18n="catalog.emptyText"></p>
+            <button class="btn btn--primary" type="button" id="empty-reset"><span data-i18n="catalog.reset"></span></button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/texts.js"></script>
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/pages/catalog.js"></script>
+</body>
+</html>
