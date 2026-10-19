@@ -95,7 +95,10 @@
       (totals.hasUnpriced ? '<div class="summary__info">' + A.icon('clock') + '<span>' + t('cart.priceNote') + '</span></div>' : '') +
       '<div class="summary__total' + (totals.hasUnpriced ? ' is-request' : '') + '"><span>' + t('cart.total') + '</span><b>' + total + '</b></div>' +
       '<button class="btn btn--primary btn--lg btn--block" type="submit" form="checkout">' + t('cart.form.submit') + '</button>' +
-      '<p class="summary__note">' + t('cart.form.agree') + '</p>';
+      '<p class="summary__note">' + t('cart.form.agree', {
+        terms: '<a href="' + A.legalPages.terms + '">' + t('cart.form.agreeTerms') + '</a>',
+        privacy: '<a href="' + A.legalPages.privacy + '">' + t('cart.form.agreePrivacy') + '</a>'
+      }) + '</p>';
   }
 
   function render() {

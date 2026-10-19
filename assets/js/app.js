@@ -527,8 +527,23 @@
     document.getElementById('cart-btn').setAttribute('aria-label', t('header.cartAria', { count: n }));
   }
 
+  // Юридические страницы: ключ документа в texts.legal.docs → файл страницы
+  var LEGAL_PAGES = { terms: 'terms.html', privacy: 'privacy.html', returns: 'returns.html', delivery: 'delivery.html' };
+
+  // Обязательные для румынских магазинов ссылки: ANPC (SAL) и платформа SOL
+  var DISPUTE_LINKS = {
+    sal: 'https://anpc.ro/ce-este-sal/',
+    sol: 'https://ec.europa.eu/consumers/odr'
+  };
+
   function renderFooter() {
     var types = Object.keys(dict.types);
+    var badges = ['sal', 'sol'].map(function (k) {
+      return '<a class="trust-badge trust-badge--' + k + '" href="' + DISPUTE_LINKS[k] + '" target="_blank" rel="noopener" aria-label="' + esc(t('legal.badges.' + k + '.aria')) + '">' +
+        '<span class="trust-badge__mark">' + t('legal.badges.' + k + '.title') + '</span>' +
+        '<span class="trust-badge__text">' + t('legal.badges.' + k + '.text') + '</span></a>';
+    }).join('');
+
     document.getElementById('site-footer').innerHTML =
       '<footer class="footer">' +
         '<div class="container footer__grid">' +
@@ -540,9 +555,11 @@
             types.map(function (k) { return '<li><a href="catalog.html?type=' + k + '">' + t('types.' + k) + '</a></li>'; }).join('') +
           '</ul></div>' +
           '<div><h4>' + t('footer.infoTitle') + '</h4><ul>' +
-            '<li><a href="contacts.html#faq">' + t('footer.info.delivery') + '</a></li>' +
+            Object.keys(LEGAL_PAGES).map(function (k) {
+              return '<li><a href="' + LEGAL_PAGES[k] + '">' + t('legal.nav.' + k) + '</a></li>';
+            }).join('') +
             '<li><a href="contacts.html#faq">' + t('footer.info.faq') + '</a></li>' +
-            '<li><a href="contacts.html">' + t('footer.info.contacts') + '</a></li>' +
+            '<li><button class="footer__link-btn" type="button" data-cookie-settings>' + t('cookies.settings') + '</button></li>' +
           '</ul></div>' +
           '<div><h4>' + t('footer.contactsTitle') + '</h4><ul class="footer__contacts">' +
             '<li>' + icon('phone') + telLink(t('header.phone'), t('header.phone')) + '</li>' +
@@ -550,12 +567,89 @@
             '<li>' + icon('pin') + t('footer.country') + ', ' + t('footer.address').toLowerCase() + '</li>' +
           '</ul></div>' +
         '</div>' +
+        '<div class="container footer__legal">' +
+          '<p class="footer__seller">' + esc(t('footer.seller', lookup('legal.seller'))) + '</p>' +
+          '<div class="footer__badges">' + badges + '</div>' +
+        '</div>' +
         '<div class="container footer__bottom">' +
           '<span>' + t('footer.rights', { year: new Date().getFullYear() }) + '</span>' +
           '<span>' + t('footer.demo') + '</span>' +
         '</div>' +
       '</footer>';
   }
+
+  /* ---------- Согласие на cookies ---------- */
+
+  // Сайт хранит в браузере только необходимое (корзина, язык, этот выбор).
+  // Внешний шрифт Google Fonts передаёт Google IP-адрес, поэтому грузим его только с согласия.
+  var CONSENT_KEY = 'thermo.consent';
+  var CONSENT_VERSION = 1;
+  var FONT_URL = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
+
+  function getConsent() {
+    var c = storage.get(CONSENT_KEY, null);
+    return c && c.v === CONSENT_VERSION ? c : null;
+  }
+
+  function setFonts(enabled) {
+    var existing = document.querySelectorAll('[data-external-font]');
+    if (!enabled) { existing.forEach(function (el) { el.remove(); }); return; }
+    if (existing.length) return;
+    [['preconnect', 'https://fonts.googleapis.com'], ['preconnect', 'https://fonts.gstatic.com', true], ['stylesheet', FONT_URL]]
+      .forEach(function (l) {
+        var link = document.createElement('link');
+        link.rel = l[0];
+        link.href = l[1];
+        if (l[2]) link.crossOrigin = '';
+        link.setAttribute('data-external-font', '');
+        document.head.appendChild(link);
+      });
+  }
+
+  function hideCookieBanner() {
+    var el = document.getElementById('cookie-banner');
+    if (el) el.remove();
+  }
+
+  function showCookieBanner() {
+    hideCookieBanner();
+    var el = document.createElement('div');
+    el.id = 'cookie-banner';
+    el.className = 'cookie';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-labelledby', 'cookie-title');
+    el.setAttribute('aria-describedby', 'cookie-text');
+    el.innerHTML =
+      '<div class="cookie__body">' +
+        '<h2 class="cookie__title" id="cookie-title">' + t('cookies.title') + '</h2>' +
+        '<p class="cookie__text" id="cookie-text">' + t('cookies.text') + ' <a href="' + LEGAL_PAGES.privacy + '#cookies">' + t('cookies.more') + '</a></p>' +
+      '</div>' +
+      '<div class="cookie__actions">' +
+        // Кнопки равнозначны: отказ не сложнее согласия
+        '<button class="btn btn--ghost" type="button" data-consent="necessary">' + t('cookies.necessaryOnly') + '</button>' +
+        '<button class="btn btn--primary" type="button" data-consent="all">' + t('cookies.acceptAll') + '</button>' +
+      '</div>';
+    document.body.appendChild(el);
+  }
+
+  document.addEventListener('click', function (e) {
+    var choice = e.target.closest('[data-consent]');
+    if (choice) {
+      var value = choice.getAttribute('data-consent');
+      storage.set(CONSENT_KEY, { v: CONSENT_VERSION, choice: value, date: new Date().toISOString() });
+      setFonts(value === 'all');
+      hideCookieBanner();
+      return;
+    }
+    if (e.target.closest('[data-cookie-settings]')) showCookieBanner();
+  });
+
+  function initConsent() {
+    var c = getConsent();
+    setFonts(!!c && c.choice === 'all');
+    if (!c) showCookieBanner();
+  }
+
 
   /* ---------- Глобальные обработчики ---------- */
 
@@ -603,6 +697,7 @@
   renderHeader();
   renderFooter();
   applyTranslations();
+  initConsent();
 
   window.App = {
     t: t,
@@ -635,6 +730,9 @@
     breadcrumbs: breadcrumbs,
     toast: toast,
     cart: cart,
+    legalPages: LEGAL_PAGES,
+    lookup: lookup,
+    interpolate: interpolate,
     params: new URLSearchParams(window.location.search)
   };
 })();

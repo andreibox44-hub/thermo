@@ -130,6 +130,9 @@
         '<div class="delivery">' + t('product.delivery').map(function (d) {
           return '<div><h3>' + A.esc(d.title) + '</h3><p>' + A.esc(d.text) + '</p></div>';
         }).join('') + '</div>' +
+        '<p class="legal-links">' + ['delivery', 'returns'].map(function (k) {
+          return '<a class="link-arrow" href="' + A.legalPages[k] + '"><span>' + t('legal.nav.' + k) + '</span>' + A.icon('arrow') + '</a>';
+        }).join('') + '</p>' +
       '</div>' +
     '</div>' +
 
