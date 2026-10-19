@@ -227,9 +227,7 @@
       var btn = e.currentTarget;
       btn.disabled = true;
       auth.deleteAccount().then(function () {
-        user = null;
-        renderGuest('signIn');
-        A.toast(t('account.remove.done'));
+        window.location.replace('account.html?deleted=1');
       }, function (err) {
         btn.disabled = false;
         window.alert(auth.errorText(err));
@@ -320,6 +318,11 @@
   /* ---------- Запуск ---------- */
 
   if (!auth || !auth.enabled) { renderNotReady(); return; }
+
+  if (A.params.get('deleted')) {
+    A.toast(t('account.remove.done'));
+    window.history.replaceState(null, '', 'account.html');
+  }
 
   auth.onChange(function (event, u) {
     if (event === 'PASSWORD_RECOVERY') {

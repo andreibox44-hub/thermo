@@ -8,6 +8,6 @@
  * Пока поля пустые, личный кабинет показывает «скоро заработает».
  */
 window.CONFIG = {
-  supabaseUrl: '',
-  supabaseKey: ''
+  supabaseUrl: 'https://mjemowyqkroihrbbccux.supabase.co',
+  supabaseKey: 'sb_publishable_2W3o4b3hpmgdreDWwsR6gw_bl-q-0V2'
 };

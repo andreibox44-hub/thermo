@@ -37,7 +37,7 @@ assets/js/products.js       — данные товаров (window.PRODUCTS)
 assets/js/app.js            — общее: переводы, формат цен, корзина (localStorage), шапка, подвал,
                               карточка товара, картинки товаров в SVG (heaterSVG), баннер cookies
 assets/js/pages/*.js        — скрипт каждой страницы (home, catalog, product, cart, contacts, legal, account)
-assets/js/config.js         — адрес и публичный ключ Supabase (пусто = кабинет «скоро заработает»)
+assets/js/config.js         — адрес и публичный ключ Supabase (если пусто — кабинет «скоро заработает»)
 assets/js/auth.js           — App.auth: вход, регистрация, профиль, заказы, удаление аккаунта
 assets/js/vendor/supabase.js — библиотека supabase-js 2.57.4 (лежит локально, без CDN — ради GDPR)
 supabase/setup.sql          — таблицы profiles и orders, правила доступа (RLS), функция delete_account
@@ -79,9 +79,8 @@ supabase/setup.sql          — таблицы profiles и orders, правил�
 - Настоящая отправка заказов и сообщений (сейчас формы демонстрационные, данные никуда не уходят).
 - Фотографии товаров вместо SVG-картинок (`heaterSVG` в `app.js`).
 - Хостинг сайта.
-- Подключить Supabase: создать проект (регион — Frankfurt, ЕС), выполнить `supabase/setup.sql`,
-  вписать URL и publishable key в `config.js`. Пока сайт не на хостинге — отключить «Confirm email»
-  (Authentication → Sign In / Providers → Email). После хостинга — указать адрес сайта в
-  Authentication → URL Configuration и подключить свою почту (SMTP): встроенная отправляет мало писем.
+- Supabase подключён (проект mjemowyqkroihrbbccux, `setup.sql` выполнен, «Confirm email» отключён).
+  После хостинга — указать адрес сайта в Authentication → URL Configuration (иначе ссылки «Забыли
+  пароль?» не откроются), подключить свою почту (SMTP) и снова включить «Confirm email».
 - Вписать регион хранения Supabase в политику конфиденциальности (сейчас «уточняется»).
 - Сохранять в базу и заказы без входа (сейчас сохраняются только заказы из личного кабинета).

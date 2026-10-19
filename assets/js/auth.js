@@ -12,8 +12,9 @@
   // Ссылка из письма «сменить пароль» — запоминаем до того, как библиотека очистит адрес
   var recovery = /type=recovery/.test(window.location.hash);
 
+  var STORAGE_KEY = 'thermo.auth';
   var client = enabled
-    ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, { auth: { storageKey: 'thermo.auth' } })
+    ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, { auth: { storageKey: STORAGE_KEY } })
     : null;
 
   function unwrap(res) {
@@ -100,9 +101,11 @@
         .then(function (row) { return row.id; });
     },
 
+    /** Удаляет аккаунт на сервере и сессию в браузере; после этого страницу нужно перезагрузить. */
     deleteAccount: function () {
       return client.rpc('delete_account').then(unwrap).then(function () {
-        return client.auth.signOut({ scope: 'local' });
+        // Не signOut: пользователя уже нет, и сервер ответил бы 403
+        try { window.localStorage.removeItem(STORAGE_KEY); } catch (e) { /* нет доступа к хранилищу */ }
       });
     }
   };
