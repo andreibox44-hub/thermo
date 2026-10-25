@@ -181,6 +181,55 @@
   }
   function productUrl(p) { return 'product.html?id=' + encodeURIComponent(p.id); }
 
+  /* ---------- Страны доставки (данные — countries.js, подписи — texts.js → countries) ---------- */
+
+  var allCountries = window.COUNTRIES || [];
+  var countries = {
+    list: allCountries.filter(function (c) { return c.enabled; }),
+    get: function (code) { return allCountries.find(function (c) { return c.code === code; }) || null; },
+    /** Страна по умолчанию — первая включённая. */
+    fallback: function () { return countries.list.length ? countries.list[0].code : 'RO'; },
+    text: function (code, field) { return lookup('countries.' + code + '.' + field) || ''; },
+    name: function (code) { return countries.text(code, 'name') || code; },
+    /** Названия стран доставки через запятую. */
+    names: function () { return countries.list.map(function (c) { return countries.name(c.code); }).join(', '); },
+    postalValid: function (code, value) {
+      var c = countries.get(code);
+      return !c || new RegExp(c.postal, 'i').test(value);
+    },
+    /** <option> для выбора страны; сохранённая ранее страна видна, даже если доставку в неё выключили. */
+    options: function (selected) {
+      var list = countries.list.slice();
+      var extra = countries.get(selected);
+      if (extra && list.indexOf(extra) === -1) list.push(extra);
+      return list.map(function (c) {
+        return '<option value="' + c.code + '"' + (c.code === selected ? ' selected' : '') + '>' + esc(countries.name(c.code)) + '</option>';
+      }).join('');
+    },
+    /**
+     * Подстраивает поля адреса под страну: подпись и видимость региона, пример индекса.
+     * В форме: select[name=country], поле region (обёртка .field) и input[name=postal_code].
+     */
+    applyToForm: function (form, prefix) {
+      var code = form.elements.country.value;
+      var c = countries.get(code) || {};
+      var region = form.elements.region;
+      if (region) {
+        var wrap = region.closest('.field');
+        wrap.hidden = !c.region;
+        if (!c.region) region.value = '';
+        wrap.querySelector('label').firstChild.textContent = countries.text(code, 'region') || t(prefix + '.form.region');
+        region.placeholder = countries.text(code, 'regionPlaceholder');
+      }
+      var postal = form.elements.postal_code;
+      if (postal) postal.placeholder = t(prefix + '.form.postalCodePlaceholder', { example: countries.text(code, 'postalExample') });
+    },
+    /** Текст ошибки индекса для страны. */
+    postalError: function (code, prefix) {
+      return t(prefix + '.errors.postalCode', { format: countries.text(code, 'postalFormat'), example: countries.text(code, 'postalExample') });
+    }
+  };
+
   /* ---------- Избранное ----------
      Хранится в браузере; если покупатель вошёл, auth.js сохраняет его и в аккаунте. */
 
@@ -827,6 +876,7 @@
     productUrl: productUrl,
     heaterSVG: heaterSVG,
     favorites: favorites,
+    countries: countries,
     favButton: favButton,
     syncFavButtons: syncFavButtons,
     updateFavCount: updateFavCount,

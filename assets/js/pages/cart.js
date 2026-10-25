@@ -28,7 +28,7 @@
         (opts.autocomplete ? ' autocomplete="' + opts.autocomplete + '"' : '') +
         (opts.required ? ' required' : '') + '>';
     return '<div class="field' + (opts.wide ? ' field--wide' : '') + '">' +
-      '<label class="field__label" for="' + id + '">' + t('cart.form.' + name) + (opts.required ? ' <span class="req" title="' + A.esc(t('common.required')) + '">*</span>' : '') + '</label>' +
+      '<label class="field__label" for="' + id + '">' + t('cart.form.' + (opts.label || name)) + (opts.required ? ' <span class="req" title="' + A.esc(t('common.required')) + '">*</span>' : '') + '</label>' +
       control + '<span class="field__error" data-error-for="' + name + '"></span></div>';
   }
 
@@ -48,8 +48,12 @@
               field('name', { required: true, autocomplete: 'name' }) +
               field('phone', { required: true, type: 'tel', placeholder: 'cart.form.phonePlaceholder', autocomplete: 'tel' }) +
               field('email', { type: 'email', placeholder: 'cart.form.emailPlaceholder', autocomplete: 'email' }) +
+              '<div class="field field--wide"><label class="field__label" for="f-country">' + t('cart.form.country') + ' <span class="req" title="' + A.esc(t('common.required')) + '">*</span></label>' +
+                '<select class="input" id="f-country" name="country" autocomplete="country">' + A.countries.options(A.countries.fallback()) + '</select></div>' +
               field('city', { required: true, autocomplete: 'address-level2' }) +
+              field('region', { autocomplete: 'address-level1' }) +
               field('address', { required: true, wide: true, placeholder: 'cart.form.addressPlaceholder', autocomplete: 'street-address' }) +
+              field('postal_code', { label: 'postalCode', autocomplete: 'postal-code' }) +
               '<fieldset class="field field--wide"><legend class="field__label">' + t('cart.form.payment') + '</legend>' +
                 '<div class="segmented">' +
                   '<label><input type="radio" name="payment" value="card" checked><span>' + t('cart.form.paymentCard') + '</span></label>' +
@@ -65,7 +69,13 @@
     document.getElementById('cart-clear').addEventListener('click', function () {
       if (window.confirm(t('cart.clearConfirm'))) A.cart.clear();
     });
-    document.getElementById('checkout').addEventListener('submit', submit);
+    var checkout = document.getElementById('checkout');
+    checkout.addEventListener('submit', submit);
+    A.countries.applyToForm(checkout, 'cart');
+    checkout.elements.country.addEventListener('change', function () {
+      checkout.dataset.countryTouched = '1'; // страну выбрали вручную — профиль её не перезапишет
+      A.countries.applyToForm(checkout, 'cart');
+    });
     applyAccount();
   }
 
@@ -81,8 +91,13 @@
     note.textContent = t('cart.account.signedIn', { email: account.user.email });
     var form = document.getElementById('checkout');
     var p = account.profile;
-    var street = [p.address, p.postal_code, p.county].filter(Boolean).join(', ');
-    var fill = { name: p.name, phone: p.phone, email: account.user.email, city: p.city, address: street };
+    // Страну из профиля подставляем, только если в неё сейчас доставляем
+    var deliverable = A.countries.list.some(function (c) { return c.code === p.country; });
+    if (deliverable && !form.dataset.countryTouched) {
+      form.elements.country.innerHTML = A.countries.options(p.country);
+      A.countries.applyToForm(form, 'cart');
+    }
+    var fill = { name: p.name, phone: p.phone, email: account.user.email, city: p.city, region: p.region, address: p.address, postal_code: p.postal_code };
     Object.keys(fill).forEach(function (n) {
       if (fill[n] && !form.elements[n].value) form.elements[n].value = fill[n];
     });
@@ -163,6 +178,7 @@
     if (v('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) errors.email = t('cart.errors.email');
     if (!v('city')) errors.city = t('cart.errors.city');
     if (!v('address')) errors.address = t('cart.errors.address');
+    if (v('postal_code') && !A.countries.postalValid(v('country'), v('postal_code'))) errors.postal_code = A.countries.postalError(v('country'), 'cart');
 
     form.querySelectorAll('[data-error-for]').forEach(function (el) {
       var name = el.getAttribute('data-error-for');
@@ -190,6 +206,9 @@
       name: v('name'),
       phone: v('phone'),
       email: v('email') || null,
+      country: v('country'),
+      region: v('region') || null,
+      postal_code: v('postal_code').toUpperCase() || null,
       city: v('city'),
       address: v('address'),
       comment: v('comment') || null,

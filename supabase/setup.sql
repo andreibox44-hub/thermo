@@ -12,7 +12,9 @@ create table if not exists public.profiles (
   phone text not null default '',
   city text not null default '',
   address text not null default '',
-  county text not null default '',       -- уезд (județ)
+  country text not null default 'RO'     -- код страны (ISO), список — assets/js/countries.js
+    constraint profiles_country_code check (country ~ '^[A-Z]{2}$'),
+  region text not null default '',       -- регион: уезд (județ), провинция, область…
   postal_code text not null default '',
   favorites text[] not null default '{}' -- избранные товары (id из products.js)
     constraint profiles_favorites_limit check (coalesce(array_length(favorites, 1), 0) <= 100),
@@ -56,6 +58,10 @@ create table if not exists public.orders (
   name text not null,
   phone text not null,
   email text,
+  country text not null default 'RO'
+    constraint orders_country_code check (country ~ '^[A-Z]{2}$'),
+  region text,
+  postal_code text,
   city text not null,
   address text not null,
   comment text,
@@ -87,9 +93,18 @@ grant execute on function public.delete_account() to authenticated;
 -- ---------- Обновление уже созданной базы (2026-10-25) ----------
 -- Если база создана по старой версии файла: адрес доставки (уезд, индекс) и избранное.
 alter table public.profiles
-  add column if not exists county text not null default '',
+  add column if not exists region text not null default '',
   add column if not exists postal_code text not null default '',
   add column if not exists favorites text[] not null default '{}';
 alter table public.profiles drop constraint if exists profiles_favorites_limit;
 alter table public.profiles
   add constraint profiles_favorites_limit check (coalesce(array_length(favorites, 1), 0) <= 100);
+
+-- ---------- Обновление (2026-10-25): адрес под разные страны ----------
+-- Если в базе ещё есть столбец county — переименовать: alter table public.profiles rename column county to region;
+alter table public.profiles
+  add column if not exists country text not null default 'RO';
+alter table public.orders
+  add column if not exists country text not null default 'RO',
+  add column if not exists region text,
+  add column if not exists postal_code text;

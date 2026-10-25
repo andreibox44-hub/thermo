@@ -8,7 +8,7 @@
   if (!doc) return;
 
   // Подстановки в тексты: данные продавца и название магазина
-  var vars = Object.assign({ name: t('brand.name') }, A.lookup('legal.seller'));
+  var vars = Object.assign({ name: t('brand.name'), countries: A.countries.names() }, A.lookup('legal.seller'));
   function fill(str) { return A.esc(A.interpolate(str, vars)); }
 
   document.title = t('pages.legal', { title: doc.title });

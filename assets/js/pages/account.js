@@ -370,29 +370,33 @@
   /* ---------- Адрес доставки ---------- */
 
   function renderAddress(p) {
+    var country = p.country || A.countries.fallback();
     document.getElementById('account-body').innerHTML =
       '<section class="panel">' +
         '<h2>' + t('account.address.title') + '</h2>' +
-        '<p class="muted">' + t('account.address.text') + '</p>' +
+        '<p class="muted">' + t('account.address.text', { countries: A.esc(A.countries.names()) }) + '</p>' +
         '<form class="form form--grid" id="address-form" novalidate>' +
+          '<div class="field field--wide"><label class="field__label" for="a-address-country">' + t('account.form.country') + '</label>' +
+            '<select class="input" id="a-address-country" name="country" autocomplete="country">' + A.countries.options(country) + '</select></div>' +
           field('address', 'city', { autocomplete: 'address-level2', value: p.city }) +
-          field('address', 'county', { placeholder: 'account.form.countyPlaceholder', autocomplete: 'address-level1', value: p.county }) +
+          field('address', 'region', { label: 'region', autocomplete: 'address-level1', value: p.region }) +
           field('address', 'address', { wide: true, label: 'street', placeholder: 'account.form.streetPlaceholder', autocomplete: 'street-address', value: p.address }) +
-          field('address', 'postal_code', { label: 'postalCode', placeholder: 'account.form.postalCodePlaceholder', autocomplete: 'postal-code', value: p.postal_code }) +
+          field('address', 'postal_code', { label: 'postalCode', autocomplete: 'postal-code', value: p.postal_code }) +
           '<p class="form__error field--wide" role="alert"></p>' +
           '<div class="field--wide"><button class="btn btn--primary" type="submit">' + t('account.address.save') + '</button></div>' +
         '</form>' +
       '</section>';
 
     var form = document.getElementById('address-form');
-    form.elements.postal_code.setAttribute('inputmode', 'numeric');
+    A.countries.applyToForm(form, 'account');
+    form.elements.country.addEventListener('change', function () { A.countries.applyToForm(form, 'account'); });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var v = values(form);
       var errors = {};
-      if (v.postal_code && !/^\d{6}$/.test(v.postal_code)) errors.postal_code = t('account.errors.postalCode');
+      if (v.postal_code && !A.countries.postalValid(v.country, v.postal_code)) errors.postal_code = A.countries.postalError(v.country, 'account');
       if (!showErrors(form, errors)) return;
-      var data = { city: v.city, county: v.county, address: v.address, postal_code: v.postal_code };
+      var data = { country: v.country, region: v.region, city: v.city, address: v.address, postal_code: v.postal_code.toUpperCase() };
       run(form, auth.saveProfile(user.id, data), function () {
         busy(form, false);
         Object.keys(data).forEach(function (k) { state.profile[k] = data[k]; });

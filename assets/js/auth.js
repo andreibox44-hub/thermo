@@ -88,7 +88,7 @@
     },
 
     profile: function (userId) {
-      return client.from('profiles').select('name, phone, city, address, county, postal_code, favorites').eq('id', userId).maybeSingle()
+      return client.from('profiles').select('name, phone, country, region, city, address, postal_code, favorites').eq('id', userId).maybeSingle()
         .then(unwrap).then(function (p) { return p || {}; });
     },
     saveProfile: function (userId, data) {
