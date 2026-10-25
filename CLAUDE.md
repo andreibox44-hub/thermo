@@ -133,7 +133,7 @@ tools/build_geo.py          — сборка справочников assets/js/
 - Вход через Google: кнопка над формой входа/регистрации (`account.js → renderOAuth`,
   `auth.js → providers / signInWithProvider`; список сервисов — `OAUTH_ORDER`, только google).
   Сайт спрашивает у Supabase (`/auth/v1/settings`), включён ли Google, и только тогда показывает
-  кнопку — **сейчас не включён, кнопки нет**. Работает только по http/https (на GitHub Pages);
+  кнопку — **включён 2026-10-25** (Google Cloud: проект «Glowden», клиент Web application). Работает только по http/https (на GitHub Pages);
   с файла с диска — сообщение «заработает на хостинге». Отмена/ошибка входа — сообщение под формой.
 - Адрес доставки — общая форма `assets/js/address.js` (App.address) в кабинете и корзине:
   страна → регион из списка → город (выпадающий список мест региона: сначала города, потом
@@ -174,24 +174,17 @@ tools/build_geo.py          — сборка справочников assets/js/
 
 ## На чём остановились
 
-Обнаружили, что сайт уже опубликован на GitHub Pages
-(https://andreibox44-hub.github.io/thermo/), и начали **настройку входа через Google**.
-Заказчику даны шаги; ждём, когда он их выполнит, затем проверить вход вживую на опубликованном сайте:
-
-1. Supabase → Authentication → URL Configuration: Site URL
-   `https://andreibox44-hub.github.io/thermo/`, Redirect URLs `https://andreibox44-hub.github.io/thermo/**`.
-2. Google Cloud Console → Google Auth Platform: проект «Glowden», экран согласия (название, почта
-   поддержки, ссылки на `…/privacy.html` и `…/terms.html`), Audience — External, опубликовать;
-   Clients → Web application: Authorized JavaScript origins `https://andreibox44-hub.github.io`,
-   Authorized redirect URIs `https://mjemowyqkroihrbbccux.supabase.co/auth/v1/callback`.
-3. Supabase → Authentication → Sign In / Providers → Google: включить, вставить Client ID и secret.
-   Проверить: `curl <supabase>/auth/v1/settings` → `external.google: true`; кнопка видна на сайте.
+Вход через Google **настроен и включён** (2026-10-25): `auth/v1/settings` → `google: true`, кнопка
+«Войти через Google» видна на опубликованном сайте (компьютер и телефон), нажатие ведёт на страницу
+входа Google без ошибок (redirect URI принят). Осталось: заказчик один раз входит своим Google-аккаунтом
+на https://andreibox44-hub.github.io/thermo/account.html — затем проверить, что вернуло в кабинет
+и в `profiles` появилось имя из Google.
 
 Заказчика предупредили: сайт уже открыт всем по ссылке; если до запуска его нужно закрыть — решить как.
 
 ## Что осталось сделать
 
-- Закончить вход через Google (см. «На чём остановились»).
+- Проверить первый настоящий вход через Google (см. «На чём остановились»).
 - Supabase: подключить свою почту (SMTP — встроенная отправляет всего несколько писем в час)
   и снова включить «Confirm email»; узнать регион проекта (Project Settings → General) и вписать
   его в политику конфиденциальности (`texts.js → legal.docs.privacy`, раздел 5, сейчас «уточняется»).
