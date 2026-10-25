@@ -10,8 +10,8 @@
 
   /* Иллюстрация первого экрана */
   document.getElementById('hero-visual').innerHTML =
-    '<div class="hero__card hero__card--main">' + A.heaterSVG(A.getProduct('pkn-2v')) + '</div>' +
-    '<div class="hero__card hero__card--side">' + A.heaterSVG(A.getProduct('control-unit')) + '</div>' +
+    '<div class="hero__card hero__card--main">' + A.productImage(A.getProduct('pkn-2v')) + '</div>' +
+    '<div class="hero__card hero__card--side">' + A.productImage(A.getProduct('control-unit')) + '</div>' +
     '<div class="hero__chip">' + A.icon('wifi') + '<div><b>' + t('home.hero.tempValue') + '</b><span>' + t('home.hero.tempLabel') + '</span></div></div>';
 
   /* Преимущества */
@@ -32,7 +32,7 @@
     // Обложка — модель из середины линейки
     var cover = items[Math.floor((items.length - 1) / 2)];
     return '<a class="category" href="catalog.html?type=' + type + '">' +
-      '<div class="category__media">' + A.heaterSVG(cover) + '</div>' +
+      '<div class="category__media">' + A.productImage(cover) + '</div>' +
       '<div class="category__body">' +
         '<h3>' + t('types.' + type) + '</h3>' +
         '<p>' + t('typeDescriptions.' + type) + '</p>' +

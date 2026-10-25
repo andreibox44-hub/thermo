@@ -101,7 +101,7 @@
       var p = l.product;
       var name = A.esc(A.productText(p, 'name'));
       return '<li class="cart-item" data-id="' + A.esc(p.id) + '">' +
-        '<a class="cart-item__media" href="' + A.productUrl(p) + '" tabindex="-1">' + A.heaterSVG(p) + '</a>' +
+        '<a class="cart-item__media" href="' + A.productUrl(p) + '" tabindex="-1">' + A.productImage(p) + '</a>' +
         '<div class="cart-item__info">' +
           '<span class="card__type">' + t('typeSingle.' + p.type) + '</span>' +
           '<a class="cart-item__name" href="' + A.productUrl(p) + '">' + name + '</a>' +

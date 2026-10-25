@@ -37,6 +37,7 @@
     ['mount', has(p.mount) && t('specValues.mount.' + p.mount)],
     ['sections', sections],
     ['area', heater && A.areaLabel(p)],
+    ['volume', has(p.volume) && t('units.upToM3', { value: A.formatNumber(p.volume) })],
     ['ceiling', has(p.ceiling) && t('units.upToM', { value: A.formatNumber(p.ceiling) })],
     ['power', has(p.power) && A.formatPower(p.power)],
     ['current', current],
@@ -76,7 +77,7 @@
     .slice(0, 4);
 
   var perkIcons = ['truck', 'shield'];
-  var featureIcons = { metal: 'shield', touch: 'touch', wifi: 'wifi', fan: 'fan' };
+  var featureIcons = { metal: 'shield', touch: 'touch', wifi: 'wifi', fan: 'fan', thermostat: 'thermo' };
 
   root.innerHTML =
     A.breadcrumbs([
@@ -87,7 +88,7 @@
     ]) +
 
     '<div class="product">' +
-      '<div class="product__media">' + A.certBadges(p) + A.heaterSVG(p) + '</div>' +
+      '<div class="product__media">' + A.certBadges(p) + A.productImage(p) + '</div>' +
 
       '<div class="product__info">' +
         '<a class="product__type" href="catalog.html?type=' + p.type + '">' + t('typeSingle.' + p.type) + '</a>' +

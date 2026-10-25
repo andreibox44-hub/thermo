@@ -153,6 +153,7 @@
   function productVars(p) {
     var v = { name: t('products.' + p.id + '.name') };
     if (has(p.area)) v.area = formatNumber(p.area);
+    if (has(p.volume)) v.volume = formatNumber(p.volume);
     if (has(p.ceiling)) v.ceiling = formatNumber(p.ceiling);
     if (has(p.power)) v.power = formatPower(p.power);
     if (has(p.consumption)) v.consumption = formatConsumption(p.consumption);
@@ -363,6 +364,13 @@
       body + '</svg>';
   }
 
+  /** Фото товара, а если фото нет — векторная картинка. Встраиваемые — фото в интерьере. */
+  function productImage(p) {
+    if (!p.image) return heaterSVG(p);
+    return '<img class="product-img' + (p.type === 'inFloor' ? ' product-img--scene' : '') + '" src="' + esc(p.image) +
+      '" alt="' + esc(productText(p, 'name')) + '" loading="lazy" decoding="async">';
+  }
+
   /* ---------- Общие компоненты ---------- */
 
   function priceBlock(p, cls) {
@@ -414,7 +422,7 @@
   function productCard(p) {
     var url = productUrl(p);
     return '<article class="card">' +
-      '<a class="card__media" href="' + url + '" tabindex="-1">' + certBadges(p) + heaterSVG(p) + '</a>' +
+      '<a class="card__media" href="' + url + '" tabindex="-1">' + certBadges(p) + productImage(p) + '</a>' +
       '<div class="card__body">' +
         '<span class="card__type">' + t('typeSingle.' + p.type) + '</span>' +
         '<h3 class="card__title"><a href="' + url + '">' + esc(productText(p, 'name')) + '</a></h3>' +
@@ -727,6 +735,7 @@
     productText: productText,
     productUrl: productUrl,
     heaterSVG: heaterSVG,
+    productImage: productImage,
     productCard: productCard,
     priceBlock: priceBlock,
     addButton: addButton,
