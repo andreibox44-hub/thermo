@@ -255,7 +255,6 @@
     thermo: '<path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/>',
     wifi: '<path d="M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10 16.5a3 3 0 0 1 4 0"/><circle cx="12" cy="19.5" r=".6"/>',
     touch: '<path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11l4.6 1a2 2 0 0 1 1.5 2.3L17 20H9.5L6 15.5a1.5 1.5 0 0 1 2.3-1.9L9 14.5"/>',
-    leaf: '<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>',
     fan: '<circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-6 3.5-6s2 4-1.5 6.5M14 12c4 0 6 1 6 3.5s-4 2-6.5-1.5M12 14c0 4-1 6-3.5 6s-2-4 1.5-6.5M10 12c-4 0-6-1-6-3.5s4-2 6.5 1.5"/>',
     lifetime: '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M12 8v4l2.5 1.5"/>',
     alert: '<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
@@ -412,13 +411,16 @@
       p.warnings.map(function (w) { return '<p>' + t('warnings.' + w) + '</p>'; }).join('') + '</div></div>';
   }
 
-  /** Метки на фото: сертификаты (слева, «Сертификат CE») и ECO (справа). */
+  /** Метки на фото слева сверху: сертификаты («Сертификат CE»), под ними значок ECO с карточек. */
   function certBadges(p) {
-    var html = p.certs.length ? '<span class="certs">' + p.certs.map(function (c) {
+    var items = p.certs.map(function (c) {
       return '<span class="cert">' + icon('shield') + t('certs.' + c) + '</span>';
-    }).join('') + '</span>' : '';
-    if (p.eco) html += '<span class="eco">' + icon('leaf') + t('certs.eco') + '</span>';
-    return html;
+    });
+    if (p.eco) {
+      items.push('<img class="eco" src="assets/img/eco.webp?v=' + window.IMAGE_VERSION + '" alt="' +
+        esc(t('certs.eco')) + '" width="65" height="73">');
+    }
+    return items.length ? '<span class="certs">' + items.join('') + '</span>' : '';
   }
 
   function productCard(p) {

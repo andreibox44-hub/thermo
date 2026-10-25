@@ -35,7 +35,7 @@ window.CATEGORY_COMMON = {
 };
 
 /* Версия фото: увеличить после замены файлов в assets/img/products, чтобы браузер не показывал старые */
-window.IMAGE_VERSION = 2;
+window.IMAGE_VERSION = 3;
 
 window.PRODUCTS = [
   /* Напольные */
