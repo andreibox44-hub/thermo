@@ -40,7 +40,7 @@ window.TEXTS = {
       closeMenu: 'Закрыть меню',
       cartAria: 'Корзина, товаров: {count}',
       language: 'Язык',
-      phone: '+40 XXX XXX XXX',
+      phone: '+39 389 040 5737',
       phoneHint: 'Консультация по подбору'
     },
 
@@ -483,13 +483,13 @@ window.TEXTS = {
       title: 'Контакты',
       subtitle: 'Звоните или пишите — поможем подобрать обогреватель ПКН под ваше помещение.',
       cards: [
-        { icon: 'pin', title: 'Адрес', lines: ['Румыния', 'Адрес уточняется'] },
-        { icon: 'phone', title: 'Телефон', lines: ['+40 XXX XXX XXX'] },
-        { icon: 'mail', title: 'Почта', lines: ['info@example.com'] },
+        { icon: 'pin', title: 'Адрес', lines: ['Str. Adrian Adamiu nr. 8', '710013 Botoșani, jud. Botoșani, România'] },
+        { icon: 'phone', title: 'Телефон', lines: ['+39 389 040 5737'] },
+        { icon: 'mail', title: 'Почта', lines: ['supearius@gmail.com'] },
         { icon: 'clock', title: 'Часы работы', lines: ['Уточняются'] }
       ],
       map: 'Схема проезда',
-      mapLabel: 'Румыния · адрес уточняется',
+      mapLabel: 'Botoșani · Str. Adrian Adamiu nr. 8',
       formTitle: 'Напишите нам',
       formText: 'Ответим в течение часа в рабочее время.',
       form: {
@@ -535,20 +535,28 @@ window.TEXTS = {
       formTitle: 'Образец формы отказа от договора',
       formNote: 'Заполните и отправьте эту форму, только если хотите отказаться от договора.',
       seller: {
-        company: 'уточняется',
-        cui: 'уточняется',
-        regCom: 'уточняется',
-        address: 'Румыния, адрес уточняется',
-        email: 'info@example.com',
-        phone: '+40 XXX XXX XXX'
+        company: 'FIRMA DE COMERT ROMAVA SRL',
+        cui: 'RO35249323',
+        regCom: 'J07/458/2015',
+        capital: '200 lei',
+        address: 'Str. Adrian Adamiu nr. 8, 710013 Botoșani, jud. Botoșani, România',
+        email: 'supearius@gmail.com',
+        phone: '+39 389 040 5737',
+        bank: 'UniCredit Bank, Botoșani',
+        iban: 'RO77BACX0000002723692001 (EUR)',
+        swift: 'BACX'
       },
       sellerRows: [
         { label: 'Наименование', key: 'company' },
         { label: 'Код CUI', key: 'cui' },
         { label: 'Номер в торговом реестре (ONRC)', key: 'regCom' },
+        { label: 'Уставный капитал', key: 'capital' },
         { label: 'Юридический адрес', key: 'address' },
         { label: 'Эл. почта', key: 'email' },
-        { label: 'Телефон', key: 'phone' }
+        { label: 'Телефон', key: 'phone' },
+        { label: 'Банк', key: 'bank' },
+        { label: 'Счёт (IBAN)', key: 'iban' },
+        { label: 'SWIFT', key: 'swift' }
       ],
       nav: {
         terms: 'Условия продажи',
@@ -711,7 +719,7 @@ window.TEXTS = {
             { title: '4. Способы оплаты', list: [
               'банковской картой онлайн — платёжный провайдер уточняется;',
               'при получении — условия уточняются;',
-              'банковским переводом — уточняется.'
+              'банковским переводом на счёт {iban} в банке {bank} (SWIFT {swift}).'
             ] },
             { title: '5. Документы', paragraphs: [
               'К каждому заказу выставляется счёт-фактура (factură). Цены указываются в евро; сумма к оплате в другой валюте и курс пересчёта — уточняются.'
@@ -735,8 +743,8 @@ window.TEXTS = {
       },
       seller: 'Продавец: {company}, CUI: {cui}, ONRC: {regCom}',
       country: 'Румыния',
-      address: 'Адрес уточняется',
-      email: 'info@example.com',
+      address: 'Botoșani, Str. Adrian Adamiu nr. 8',
+      email: 'supearius@gmail.com',
       rights: '© {year} Glowden. Все права защищены.',
       demo: 'Демонстрационный магазин: заказы не обрабатываются.'
     },

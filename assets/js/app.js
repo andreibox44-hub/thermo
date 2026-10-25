@@ -582,7 +582,7 @@
           '<div><h4>' + t('footer.contactsTitle') + '</h4><ul class="footer__contacts">' +
             '<li>' + icon('phone') + telLink(t('header.phone'), t('header.phone')) + '</li>' +
             '<li>' + icon('mail') + '<a href="mailto:' + t('footer.email') + '">' + t('footer.email') + '</a></li>' +
-            '<li>' + icon('pin') + t('footer.country') + ', ' + t('footer.address').toLowerCase() + '</li>' +
+            '<li>' + icon('pin') + t('footer.address') + ', ' + t('footer.country') + '</li>' +
           '</ul></div>' +
         '</div>' +
         '<div class="container footer__legal">' +
