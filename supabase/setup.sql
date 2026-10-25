@@ -12,6 +12,10 @@ create table if not exists public.profiles (
   phone text not null default '',
   city text not null default '',
   address text not null default '',
+  county text not null default '',       -- уезд (județ)
+  postal_code text not null default '',
+  favorites text[] not null default '{}' -- избранные товары (id из products.js)
+    constraint profiles_favorites_limit check (coalesce(array_length(favorites, 1), 0) <= 100),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -33,6 +37,9 @@ begin
   return new;
 end;
 $$;
+
+-- Срабатывает только как триггер; вызывать через API не нужно
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
@@ -76,3 +83,13 @@ $$;
 
 revoke execute on function public.delete_account() from public, anon;
 grant execute on function public.delete_account() to authenticated;
+
+-- ---------- Обновление уже созданной базы (2026-10-25) ----------
+-- Если база создана по старой версии файла: адрес доставки (уезд, индекс) и избранное.
+alter table public.profiles
+  add column if not exists county text not null default '',
+  add column if not exists postal_code text not null default '',
+  add column if not exists favorites text[] not null default '{}';
+alter table public.profiles drop constraint if exists profiles_favorites_limit;
+alter table public.profiles
+  add constraint profiles_favorites_limit check (coalesce(array_length(favorites, 1), 0) <= 100);

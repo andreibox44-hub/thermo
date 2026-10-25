@@ -8,6 +8,7 @@
 
   var LANG_KEY = 'thermo.lang';
   var CART_KEY = 'thermo.cart';
+  var FAV_KEY = 'thermo.favorites';
   var DEFAULT_LANG = 'ru';
 
   /* ---------- Хранилище (localStorage может быть недоступен) ---------- */
@@ -180,6 +181,29 @@
   }
   function productUrl(p) { return 'product.html?id=' + encodeURIComponent(p.id); }
 
+  /* ---------- Избранное ----------
+     Хранится в браузере; если покупатель вошёл, auth.js сохраняет его и в аккаунте. */
+
+  var favorites = {
+    read: function () {
+      var raw = storage.get(FAV_KEY, []);
+      return Array.isArray(raw) ? raw.filter(function (id) { return byId[id]; }) : [];
+    },
+    has: function (id) { return favorites.read().indexOf(id) !== -1; },
+    write: function (list) {
+      storage.set(FAV_KEY, list.slice(0, 100));
+      document.dispatchEvent(new CustomEvent('favorites:change'));
+    },
+    /** Добавляет или убирает товар; возвращает true, если товар теперь в избранном. */
+    toggle: function (id) {
+      var list = favorites.read();
+      var i = list.indexOf(id);
+      if (i === -1) list.unshift(id); else list.splice(i, 1);
+      favorites.write(list);
+      return i === -1;
+    }
+  };
+
   /* ---------- Корзина ---------- */
 
   var cart = {
@@ -260,6 +284,7 @@
     lifetime: '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M12 8v4l2.5 1.5"/>',
     alert: '<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
     chevron: '<path d="M9 6l6 6-6 6"/>',
+    heart: '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/>',
     user: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>',
     logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h10"/>'
   };
@@ -421,10 +446,36 @@
     return html;
   }
 
+  /** Сердечко «В избранное». withLabel — с подписью (страница товара). */
+  function favButton(p, withLabel) {
+    var on = favorites.has(p.id);
+    var label = t(on ? 'favorites.remove' : 'favorites.add');
+    return '<button type="button" class="fav-btn' + (withLabel ? ' fav-btn--label' : '') + (on ? ' is-on' : '') + '" data-fav="' + esc(p.id) + '"' +
+      ' aria-pressed="' + on + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' + icon('heart') +
+      (withLabel ? '<span>' + t(on ? 'favorites.inList' : 'favorites.add') + '</span>' : '') + '</button>';
+  }
+
+  /** Обновляет все сердечки товара на странице. */
+  function syncFavButtons(id) {
+    var on = favorites.has(id);
+    document.querySelectorAll('[data-fav="' + id + '"]').forEach(function (b) {
+      var label = t(on ? 'favorites.remove' : 'favorites.add');
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('aria-label', label);
+      b.title = label;
+      var span = b.querySelector('span');
+      if (span) span.textContent = t(on ? 'favorites.inList' : 'favorites.add');
+    });
+  }
+
   function productCard(p) {
     var url = productUrl(p);
     return '<article class="card">' +
-      '<a class="card__media" href="' + url + '" tabindex="-1">' + certBadges(p) + productImage(p) + '</a>' +
+      '<div class="card__mediawrap">' +
+        '<a class="card__media" href="' + url + '" tabindex="-1">' + certBadges(p) + productImage(p) + '</a>' +
+        favButton(p) +
+      '</div>' +
       '<div class="card__body">' +
         '<span class="card__type">' + t('typeSingle.' + p.type) + '</span>' +
         '<h3 class="card__title"><a href="' + url + '">' + esc(productText(p, 'name')) + '</a></h3>' +
@@ -505,11 +556,14 @@
               return '<a class="nav__link' + (l.key === activeKey ? ' is-active' : '') + '" href="' + l.href + '"' +
                 (l.key === activeKey ? ' aria-current="page"' : '') + '>' + t('nav.' + l.key) + '</a>';
             }).join('') +
+            '<a class="nav__link nav__fav" href="account.html#favorites">' + icon('heart') + t('nav.favorites') + '</a>' +
             telLink(phone, icon('phone') + phone, 'nav__phone') +
           '</nav>' +
           '<div class="header__actions">' +
             telLink(phone, '<b>' + phone + '</b><small>' + t('header.phoneHint') + '</small>', 'header__phone') +
             langSwitch +
+            '<a class="account-btn fav-link" href="account.html#favorites" id="fav-link" title="' + esc(t('nav.favorites')) + '">' + icon('heart') +
+              '<span class="fav-link__count" id="fav-count"></span></a>' +
             '<a class="account-btn' + (page === 'account' ? ' is-active' : '') + '" href="account.html" aria-label="' + esc(t('nav.account')) + '" title="' + esc(t('nav.account')) + '"' +
               (page === 'account' ? ' aria-current="page"' : '') + '>' + icon('user') + '</a>' +
             '<a class="cart-btn' + (page === 'cart' ? ' is-active' : '') + '" href="cart.html" id="cart-btn">' + icon('cart') +
@@ -671,6 +725,36 @@
 
   /* ---------- Глобальные обработчики ---------- */
 
+  // Счётчик избранного в шапке
+  function updateFavCount() {
+    var el = document.getElementById('fav-count');
+    if (!el) return;
+    var n = favorites.read().length;
+    el.textContent = n || '';
+    el.hidden = !n;
+    document.getElementById('fav-link').setAttribute('aria-label', t('favorites.headerAria', { count: n }));
+  }
+  document.addEventListener('favorites:change', updateFavCount);
+  window.addEventListener('storage', function (e) {
+    if (e.key === FAV_KEY) document.dispatchEvent(new CustomEvent('favorites:change'));
+  });
+
+  // Сердечко: добавить в избранное или убрать
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-fav]');
+    if (!btn) return;
+    e.preventDefault();
+    var id = btn.getAttribute('data-fav');
+    var on = favorites.toggle(id);
+    syncFavButtons(id);
+    if (on) {
+      btn.classList.remove('is-pop');
+      void btn.offsetWidth; // анимация «пульса» заново
+      btn.classList.add('is-pop');
+    }
+    toast(t(on ? 'favorites.added' : 'favorites.removed'), on ? { href: 'account.html#favorites', label: t('favorites.open') } : null);
+  });
+
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-add-to-cart]');
     if (!btn) return;
@@ -713,6 +797,7 @@
   document.documentElement.lang = dict.meta.lang;
   if (dict.pages[page]) document.title = t('pages.' + page);
   renderHeader();
+  updateFavCount();
   renderFooter();
   applyTranslations();
   initConsent();
@@ -741,6 +826,10 @@
     productText: productText,
     productUrl: productUrl,
     heaterSVG: heaterSVG,
+    favorites: favorites,
+    favButton: favButton,
+    syncFavButtons: syncFavButtons,
+    updateFavCount: updateFavCount,
     productImage: productImage,
     productCard: productCard,
     priceBlock: priceBlock,

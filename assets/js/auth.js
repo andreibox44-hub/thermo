@@ -13,6 +13,8 @@
   var recovery = /type=recovery/.test(window.location.hash);
 
   var STORAGE_KEY = 'thermo.auth';
+  // Чьё избранное сейчас в браузере (id пользователя) — чтобы объединить его с аккаунтом один раз
+  var FAV_OWNER_KEY = 'thermo.favorites.owner';
   var client = enabled
     ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, { auth: { storageKey: STORAGE_KEY } })
     : null;
@@ -72,7 +74,11 @@
       return client.auth.signInWithPassword({ email: email, password: password }).then(unwrap);
     },
     signOut: function () {
-      return client.auth.signOut({ scope: 'local' }).then(function (res) { if (res.error) throw res.error; });
+      return client.auth.signOut({ scope: 'local' }).then(function (res) {
+        if (res.error) throw res.error;
+        // Избранное принадлежит аккаунту — в браузере его не оставляем
+        forgetFavorites();
+      });
     },
     resetPassword: function (email) {
       return client.auth.resetPasswordForEmail(email, { redirectTo: returnUrl() }).then(unwrap);
@@ -82,13 +88,33 @@
     },
 
     profile: function (userId) {
-      return client.from('profiles').select('name, phone, city, address').eq('id', userId).maybeSingle()
+      return client.from('profiles').select('name, phone, city, address, county, postal_code, favorites').eq('id', userId).maybeSingle()
         .then(unwrap).then(function (p) { return p || {}; });
     },
     saveProfile: function (userId, data) {
       var row = { updated_at: new Date().toISOString() };
       for (var k in data) row[k] = data[k];
       return client.from('profiles').update(row).eq('id', userId).then(unwrap);
+    },
+
+    /**
+     * Избранное аккаунта и браузера. При первом входе на этом устройстве списки объединяются,
+     * дальше главный — список в браузере (его меняют сердечки на любой странице).
+     * Возвращает итоговый список.
+     */
+    syncFavorites: function (userId, serverList) {
+      var local = A.favorites.read();
+      var server = (serverList || []).filter(function (id) { return A.getProduct(id); });
+      var owner = null;
+      try { owner = window.localStorage.getItem(FAV_OWNER_KEY); } catch (e) { /* нет доступа */ }
+      var list = owner === userId ? local : local.concat(server.filter(function (id) { return local.indexOf(id) === -1; }));
+      try { window.localStorage.setItem(FAV_OWNER_KEY, userId); } catch (e) { /* нет доступа */ }
+      if (list.join() !== local.join()) A.favorites.write(list);
+      if (list.join() !== server.join()) A.auth.saveFavorites(userId, list).catch(function () {});
+      return list;
+    },
+    saveFavorites: function (userId, list) {
+      return client.from('profiles').update({ favorites: list.slice(0, 100) }).eq('id', userId).then(unwrap);
     },
 
     orders: function () {
@@ -106,7 +132,25 @@
       return client.rpc('delete_account').then(unwrap).then(function () {
         // Не signOut: пользователя уже нет, и сервер ответил бы 403
         try { window.localStorage.removeItem(STORAGE_KEY); } catch (e) { /* нет доступа к хранилищу */ }
+        forgetFavorites();
       });
     }
   };
+
+  function forgetFavorites() {
+    try { window.localStorage.removeItem(FAV_OWNER_KEY); } catch (e) { /* нет доступа */ }
+    A.favorites.write([]);
+  }
+
+  // Покупатель вошёл: изменения избранного на этой странице сразу сохраняем в аккаунте
+  if (enabled) {
+    document.addEventListener('favorites:change', function () {
+      var owner = null;
+      try { owner = window.localStorage.getItem(FAV_OWNER_KEY); } catch (e) { return; }
+      if (!owner) return;
+      A.auth.currentUser().then(function (u) {
+        if (u && u.id === owner) return A.auth.saveFavorites(u.id, A.favorites.read());
+      }).catch(function () {});
+    });
+  }
 })();

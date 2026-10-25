@@ -450,6 +450,34 @@ select.input {
   border-radius: var(--radius-lg); overflow: hidden; transition: box-shadow .25s, transform .25s, border-color .25s;
 }
 .card:hover { box-shadow: var(--shadow); transform: translateY(-3px); border-color: transparent; }
+/* Сердечко «В избранное» */
+.card__mediawrap { position: relative; }
+.fav-btn {
+  display: inline-grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, .92); color: var(--text-3); cursor: pointer; box-shadow: 0 2px 8px rgba(15, 23, 42, .1);
+  transition: color .2s, background .2s, transform .2s;
+}
+.fav-btn .icon { width: 20px; height: 20px; }
+.fav-btn:hover { color: #e11d48; transform: scale(1.08); }
+.fav-btn.is-on { color: #e11d48; }
+.fav-btn.is-on .icon { fill: currentColor; }
+.fav-btn.is-pop .icon { animation: fav-pop .45s cubic-bezier(.2, .8, .2, 1.4); }
+@keyframes fav-pop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.card__mediawrap > .fav-btn { position: absolute; right: 12px; bottom: 12px; z-index: 2; }
+.fav-btn--label {
+  display: inline-flex; gap: 8px; width: auto; height: auto; padding: 8px 4px; border-radius: 10px;
+  background: none; box-shadow: none; font: inherit; font-size: 15px; font-weight: 600; color: var(--text-2); align-self: flex-start;
+}
+.fav-btn--label:hover { transform: none; }
+.fav-btn--label.is-on { color: #e11d48; }
+/* Избранное в шапке */
+.fav-link { position: relative; }
+.fav-link__count {
+  position: absolute; top: -6px; right: -6px; display: inline-grid; place-items: center; min-width: 20px; height: 20px;
+  padding: 0 5px; border-radius: 999px; background: #e11d48; color: #fff; font-size: 11px; font-weight: 800;
+}
+.fav-link__count[hidden] { display: none; }
+.nav__fav { display: none; }
 .card__media {
   position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; padding: 24px 28px;
   background: linear-gradient(180deg, #f6f7f9, #eef0f3);
@@ -695,8 +723,28 @@ select.input {
 
 .account__head { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .account__head .muted { overflow-wrap: anywhere; }
-.account { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
-.account__danger { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
+.account { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 24px; align-items: start; }
+/* Меню разделов кабинета */
+.account__nav {
+  position: sticky; top: calc(var(--header-h) + 24px); display: flex; flex-direction: column; gap: 4px;
+  padding: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg);
+}
+.account__tab {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 0; border-radius: 12px;
+  background: none; font: inherit; font-weight: 600; color: var(--text-2); text-align: left; cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.account__tab .icon { width: 20px; height: 20px; flex-shrink: 0; }
+.account__tab:hover { background: var(--surface-2); color: var(--text); }
+.account__tab.is-active { background: var(--accent-soft); color: var(--accent); }
+.account__count { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--text-3); }
+.account__tab.is-active .account__count { color: var(--accent); }
+.account__tab--out { margin-top: 6px; border-top: 1px solid var(--line); border-radius: 0 0 12px 12px; padding-top: 16px; }
+.account__body { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.account__favs { grid-template-columns: repeat(3, 1fr); margin-top: 20px; }
+.account__guestfavs { margin-top: 32px; }
+.account__guestfavs .account__favs { grid-template-columns: repeat(4, 1fr); }
+.account__danger { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
 .account__danger h2 { margin-bottom: 8px; }
 .account__danger h2 + .muted { margin: 0; }
 .account__danger p { max-width: 640px; }
@@ -804,6 +852,8 @@ select.input {
   }
   .nav.is-open { transform: none; opacity: 1; visibility: visible; }
   .nav__link { padding: 14px 16px; font-size: 17px; }
+  .nav__fav { display: flex; align-items: center; gap: 10px; }
+  .nav__fav .icon { width: 20px; height: 20px; color: #e11d48; }
   .nav__phone { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-weight: 700; }
 
   .hero { padding-top: 32px; }
@@ -836,6 +886,15 @@ select.input {
 
   .cart { grid-template-columns: 1fr; }
   .account { grid-template-columns: 1fr; }
+  .account__nav {
+    position: static; flex-direction: row; overflow-x: auto; scrollbar-width: none; padding: 6px; gap: 2px;
+  }
+  .account__nav::-webkit-scrollbar { display: none; }
+  .account__tab { flex-shrink: 0; padding: 10px 12px; gap: 8px; white-space: nowrap; }
+  .account__count { margin-left: 0; }
+  .account__tab--out { margin: 0 0 0 auto; border-top: 0; border-radius: 12px; padding-top: 10px; }
+  .account__favs { grid-template-columns: repeat(2, 1fr); }
+  .account__guestfavs .account__favs { grid-template-columns: repeat(3, 1fr); }
   .cart__aside { position: static; }
 
   .contact-cards { grid-template-columns: repeat(2, 1fr); }
@@ -853,6 +912,10 @@ select.input {
   .logo { font-size: 20px; gap: 8px; }
   .logo__mark { width: 34px; height: 34px; border-radius: 10px; }
   .cart-btn__label { display: none; }
+  .fav-link { display: none; }
+  .card__mediawrap > .fav-btn { right: 8px; bottom: 8px; width: 32px; height: 32px; }
+  .fav-btn .icon { width: 17px; height: 17px; }
+  .account__favs, .account__guestfavs .account__favs { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .header__actions { gap: 8px; }
 
   .section { padding: 36px 0; }

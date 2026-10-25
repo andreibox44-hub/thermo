@@ -81,7 +81,8 @@
     note.textContent = t('cart.account.signedIn', { email: account.user.email });
     var form = document.getElementById('checkout');
     var p = account.profile;
-    var fill = { name: p.name, phone: p.phone, email: account.user.email, city: p.city, address: p.address };
+    var street = [p.address, p.postal_code, p.county].filter(Boolean).join(', ');
+    var fill = { name: p.name, phone: p.phone, email: account.user.email, city: p.city, address: street };
     Object.keys(fill).forEach(function (n) {
       if (fill[n] && !form.elements[n].value) form.elements[n].value = fill[n];
     });
@@ -210,7 +211,7 @@
         '<h1>' + t('cart.success.title') + '</h1>' +
         '<p>' + t('cart.success.text', { number: number }) + (saved ? ' ' + t('cart.success.saved') : '') + '</p>' +
         '<div class="empty__actions">' +
-          (saved ? '<a class="btn btn--ghost" href="account.html">' + t('cart.success.toAccount') + '</a>' : '') +
+          (saved ? '<a class="btn btn--ghost" href="account.html#orders">' + t('cart.success.toAccount') + '</a>' : '') +
           '<a class="btn btn--primary" href="index.html">' + t('cart.success.button') + '</a>' +
         '</div>' +
       '</div>';

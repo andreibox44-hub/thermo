@@ -121,7 +121,9 @@
 
     root.innerHTML = crumbs +
       '<div class="page__head"><h1 class="page__title">' + t('account.title') + '</h1></div>' +
-      '<div class="auth"><section class="panel">' + body + '</section></div>';
+      '<div class="auth"><section class="panel">' + body + '</section></div>' +
+      '<div class="account__guestfavs" id="guest-favorites" hidden></div>';
+    renderGuestFavorites();
 
     var form = document.getElementById('auth-form');
     form.addEventListener('submit', function (e) {
@@ -198,30 +200,160 @@
     });
   }
 
-  /* ---------- Личный кабинет ---------- */
+  /* ---------- Личный кабинет: разделы ---------- */
+
+  var SECTIONS = [
+    { key: 'profile', icon: 'user' },
+    { key: 'address', icon: 'pin' },
+    { key: 'favorites', icon: 'heart' },
+    { key: 'orders', icon: 'cart' }
+  ];
+  var state = null; // { profile, orders } — загружаются один раз при входе
+
+  function sectionFromHash() {
+    var key = window.location.hash.slice(1);
+    return SECTIONS.some(function (s) { return s.key === key; }) ? key : 'profile';
+  }
 
   function renderAccount() {
+    state = { profile: null, orders: null, profileError: '', ordersError: '' };
     root.innerHTML = crumbs +
       '<div class="page__head">' +
         '<div class="account__head">' +
           '<h1 class="page__title">' + t('account.title') + '</h1>' +
           '<p class="muted" id="account-hello">' + A.esc(user.email) + '</p>' +
         '</div>' +
-        '<button class="btn btn--ghost" type="button" id="sign-out">' + A.icon('logout') + '<span>' + t('account.signOut') + '</span></button>' +
       '</div>' +
       '<div class="account">' +
-        '<section class="panel" id="profile-panel"><h2>' + t('account.profile.title') + '</h2><p class="muted">' + t('account.loading') + '</p></section>' +
-        '<section class="panel"><h2>' + t('account.orders.title') + '</h2><div id="orders"><p class="muted">' + t('account.loading') + '</p></div></section>' +
-        '<section class="panel account__danger">' +
-          '<div><h2>' + t('account.remove.title') + '</h2><p class="muted">' + t('account.remove.text') + '</p></div>' +
-          '<button class="btn btn--danger" type="button" id="delete-account">' + A.icon('trash') + '<span>' + t('account.remove.button') + '</span></button>' +
-        '</section>' +
+        '<nav class="account__nav" aria-label="' + A.esc(t('account.title')) + '">' +
+          SECTIONS.map(function (s) {
+            return '<a class="account__tab" href="#' + s.key + '" data-section="' + s.key + '">' + A.icon(s.icon) +
+              '<span>' + t('account.sections.' + s.key) + '</span><span class="account__count" id="count-' + s.key + '"></span></a>';
+          }).join('') +
+          '<button class="account__tab account__tab--out" type="button" id="sign-out">' + A.icon('logout') + '<span>' + t('account.signOut') + '</span></button>' +
+        '</nav>' +
+        '<div class="account__body" id="account-body"></div>' +
       '</div>';
 
     document.getElementById('sign-out').addEventListener('click', function () {
       user = null;
       auth.signOut().catch(function () {}).then(function () { renderGuest('signIn'); });
     });
+
+    showSection(sectionFromHash());
+    updateCounts();
+
+    var id = user.id;
+    auth.profile(id).then(function (p) {
+      if (!user || user.id !== id) return;
+      state.profile = p;
+      auth.syncFavorites(id, p.favorites);
+      if (p.name) setHello(p.name);
+      showSection(current);
+    }, function (err) {
+      state.profileError = auth.errorText(err);
+      showSection(current);
+    });
+    auth.orders().then(function (list) {
+      if (!user || user.id !== id) return;
+      state.orders = list;
+      updateCounts();
+      if (current === 'orders') showSection('orders');
+    }, function (err) {
+      state.ordersError = auth.errorText(err);
+      if (current === 'orders') showSection('orders');
+    });
+  }
+
+  function setHello(name) {
+    document.getElementById('account-hello').innerHTML = A.esc(t('account.hello', { name: name })) + ' · ' + A.esc(user.email);
+  }
+
+  function updateCounts() {
+    var counts = { favorites: A.favorites.read().length, orders: state && state.orders ? state.orders.length : 0 };
+    Object.keys(counts).forEach(function (k) {
+      var el = document.getElementById('count-' + k);
+      if (el) el.textContent = counts[k] || '';
+    });
+  }
+
+  var current = 'profile';
+  function showSection(key) {
+    var body = document.getElementById('account-body');
+    if (!body) return;
+    current = key;
+    document.querySelectorAll('.account__tab[data-section]').forEach(function (a) {
+      var on = a.getAttribute('data-section') === key;
+      a.classList.toggle('is-active', on);
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      // На телефоне меню — полоска с прокруткой: показываем выбранную вкладку
+      if (on && a.parentNode.scrollWidth > a.parentNode.clientWidth) a.parentNode.scrollLeft = a.offsetLeft - 8;
+    });
+    if (key === 'favorites') { body.innerHTML = favoritesPanel(); return; }
+    if (key === 'orders') {
+      body.innerHTML = '<section class="panel"><h2>' + t('account.orders.title') + '</h2><div id="orders"></div></section>';
+      var el = document.getElementById('orders');
+      if (state.ordersError) el.innerHTML = '<p class="muted">' + A.esc(state.ordersError) + '</p>';
+      else if (!state.orders) el.innerHTML = '<p class="muted">' + t('account.loading') + '</p>';
+      else renderOrders(state.orders);
+      return;
+    }
+    // Мои данные и адрес — нужен профиль
+    if (!state.profile) {
+      body.innerHTML = '<section class="panel"><h2>' + t('account.sections.' + key) + '</h2><p class="muted">' +
+        A.esc(state.profileError || t('account.loading')) + '</p></section>';
+      return;
+    }
+    if (key === 'address') renderAddress(state.profile); else renderProfile(state.profile);
+  }
+
+  window.addEventListener('hashchange', function () {
+    if (user && document.getElementById('account-body')) showSection(sectionFromHash());
+  });
+  document.addEventListener('favorites:change', function () {
+    if (!user) { if (document.getElementById('guest-favorites')) renderGuestFavorites(); return; }
+    updateCounts();
+    if (current === 'favorites') showSection('favorites');
+  });
+
+  /* ---------- Мои данные ---------- */
+
+  function renderProfile(p) {
+    document.getElementById('account-body').innerHTML =
+      '<section class="panel">' +
+        '<h2>' + t('account.profile.title') + '</h2>' +
+        '<p class="muted">' + t('account.profile.text') + '</p>' +
+        '<form class="form form--grid" id="profile-form" novalidate>' +
+          field('profile', 'name', { autocomplete: 'name', value: p.name }) +
+          field('profile', 'phone', { type: 'tel', placeholder: 'account.form.phonePlaceholder', autocomplete: 'tel', value: p.phone }) +
+          field('profile', 'email', { wide: true, type: 'email', readonly: true, value: user.email, hint: 'account.form.emailFixed' }) +
+          '<p class="form__error field--wide" role="alert"></p>' +
+          '<div class="field--wide"><button class="btn btn--primary" type="submit">' + t('account.profile.save') + '</button></div>' +
+        '</form>' +
+      '</section>' +
+      '<section class="panel account__danger">' +
+        '<div><h2>' + t('account.remove.title') + '</h2><p class="muted">' + t('account.remove.text') + '</p></div>' +
+        '<button class="btn btn--danger" type="button" id="delete-account">' + A.icon('trash') + '<span>' + t('account.remove.button') + '</span></button>' +
+      '</section>';
+
+    var form = document.getElementById('profile-form');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = values(form);
+      var errors = {};
+      if (!v.name) errors.name = t('account.errors.name');
+      if (v.phone && v.phone.replace(/\D/g, '').length < 10) errors.phone = t('account.errors.phone');
+      if (!showErrors(form, errors)) return;
+      var data = { name: v.name, phone: v.phone };
+      run(form, auth.saveProfile(user.id, data), function () {
+        busy(form, false);
+        state.profile.name = data.name;
+        state.profile.phone = data.phone;
+        setHello(data.name);
+        A.toast(t('account.profile.saved'));
+      });
+    });
+
     document.getElementById('delete-account').addEventListener('click', function (e) {
       if (!window.confirm(t('account.remove.confirm'))) return;
       var btn = e.currentTarget;
@@ -233,53 +365,73 @@
         window.alert(auth.errorText(err));
       });
     });
-
-    var id = user.id;
-    auth.profile(id).then(function (p) {
-      if (!user || user.id !== id) return;
-      renderProfile(p);
-    }, function (err) {
-      document.querySelector('#profile-panel .muted').textContent = auth.errorText(err);
-    });
-    auth.orders().then(function (list) {
-      if (!user || user.id !== id) return;
-      renderOrders(list);
-    }, function (err) {
-      document.getElementById('orders').innerHTML = '<p class="muted">' + A.esc(auth.errorText(err)) + '</p>';
-    });
   }
 
-  function renderProfile(p) {
-    if (p.name) document.getElementById('account-hello').innerHTML = A.esc(t('account.hello', { name: p.name })) + ' · ' + A.esc(user.email);
-    var panel = document.getElementById('profile-panel');
-    panel.innerHTML = '<h2>' + t('account.profile.title') + '</h2>' +
-      '<p class="muted">' + t('account.profile.text') + '</p>' +
-      '<form class="form form--grid" id="profile-form" novalidate>' +
-        field('profile', 'name', { autocomplete: 'name', value: p.name }) +
-        field('profile', 'phone', { type: 'tel', placeholder: 'account.form.phonePlaceholder', autocomplete: 'tel', value: p.phone }) +
-        field('profile', 'email', { type: 'email', readonly: true, value: user.email, hint: 'account.form.emailFixed' }) +
-        field('profile', 'city', { autocomplete: 'address-level2', value: p.city }) +
-        field('profile', 'address', { wide: true, placeholder: 'account.form.addressPlaceholder', autocomplete: 'street-address', value: p.address }) +
-        '<p class="form__error field--wide" role="alert"></p>' +
-        '<div class="field--wide"><button class="btn btn--primary" type="submit">' + t('account.profile.save') + '</button></div>' +
-      '</form>';
+  /* ---------- Адрес доставки ---------- */
 
-    var form = document.getElementById('profile-form');
+  function renderAddress(p) {
+    document.getElementById('account-body').innerHTML =
+      '<section class="panel">' +
+        '<h2>' + t('account.address.title') + '</h2>' +
+        '<p class="muted">' + t('account.address.text') + '</p>' +
+        '<form class="form form--grid" id="address-form" novalidate>' +
+          field('address', 'city', { autocomplete: 'address-level2', value: p.city }) +
+          field('address', 'county', { placeholder: 'account.form.countyPlaceholder', autocomplete: 'address-level1', value: p.county }) +
+          field('address', 'address', { wide: true, label: 'street', placeholder: 'account.form.streetPlaceholder', autocomplete: 'street-address', value: p.address }) +
+          field('address', 'postal_code', { label: 'postalCode', placeholder: 'account.form.postalCodePlaceholder', autocomplete: 'postal-code', value: p.postal_code }) +
+          '<p class="form__error field--wide" role="alert"></p>' +
+          '<div class="field--wide"><button class="btn btn--primary" type="submit">' + t('account.address.save') + '</button></div>' +
+        '</form>' +
+      '</section>';
+
+    var form = document.getElementById('address-form');
+    form.elements.postal_code.setAttribute('inputmode', 'numeric');
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var v = values(form);
       var errors = {};
-      if (!v.name) errors.name = t('account.errors.name');
-      if (v.phone && v.phone.replace(/\D/g, '').length < 10) errors.phone = t('account.errors.phone');
+      if (v.postal_code && !/^\d{6}$/.test(v.postal_code)) errors.postal_code = t('account.errors.postalCode');
       if (!showErrors(form, errors)) return;
-      var data = { name: v.name, phone: v.phone, city: v.city, address: v.address };
+      var data = { city: v.city, county: v.county, address: v.address, postal_code: v.postal_code };
       run(form, auth.saveProfile(user.id, data), function () {
         busy(form, false);
-        document.getElementById('account-hello').innerHTML = A.esc(t('account.hello', { name: data.name })) + ' · ' + A.esc(user.email);
-        A.toast(t('account.profile.saved'));
+        Object.keys(data).forEach(function (k) { state.profile[k] = data[k]; });
+        A.toast(t('account.address.saved'));
       });
     });
   }
+
+  /* ---------- Избранное ---------- */
+
+  function favoritesGrid(list) {
+    return '<div class="grid account__favs">' + list.map(function (id) { return A.productCard(A.getProduct(id)); }).join('') + '</div>';
+  }
+
+  function favoritesPanel() {
+    var list = A.favorites.read();
+    return '<section class="panel">' +
+      '<h2>' + t('account.favorites.title') + '</h2>' +
+      (list.length
+        ? '<p class="muted">' + t('account.favorites.text') + '</p>' + favoritesGrid(list)
+        : '<div class="empty orders__empty"><div class="empty__icon">' + A.icon('heart') + '</div>' +
+            '<p>' + t('account.favorites.empty') + '</p>' +
+            '<a class="btn btn--ghost" href="catalog.html">' + t('account.favorites.emptyButton') + '</a></div>') +
+    '</section>';
+  }
+
+  // Без входа: избранное этого браузера под формой входа
+  function renderGuestFavorites() {
+    var el = document.getElementById('guest-favorites');
+    if (!el) return;
+    var list = A.favorites.read();
+    el.hidden = !list.length;
+    el.innerHTML = list.length
+      ? '<section class="panel"><h2>' + t('account.favorites.guestTitle') + '</h2>' +
+          '<p class="muted">' + t('account.favorites.guestText') + '</p>' + favoritesGrid(list) + '</section>'
+      : '';
+  }
+
+  /* ---------- Мои заказы ---------- */
 
   function orderTotal(items) {
     var unpriced = items.some(function (i) { return !(i.price > 0); });
