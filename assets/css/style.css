@@ -134,7 +134,14 @@ legend { padding: 0; }
   background: #1e3a8a; color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap;
 }
 .cert .icon { width: 15px; height: 15px; }
+.eco {
+  position: absolute; top: 14px; right: 14px; z-index: 1; display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px 4px 7px; border-radius: 8px; background: var(--ok); color: #fff;
+  font-size: 12px; font-weight: 800; letter-spacing: .04em;
+}
+.eco .icon { width: 15px; height: 15px; }
 .product__media .certs { top: 24px; left: 24px; }
+.product__media .eco { top: 24px; right: 24px; font-size: 13px; padding: 6px 12px 6px 9px; }
 .product__media .cert { font-size: 13px; padding: 6px 12px 6px 9px; }
 .badge--hit { background: var(--accent); }
 .badge--new { background: #2563eb; }
@@ -819,6 +826,8 @@ select.input {
   .certs { top: 10px; left: 10px; }
   .cert { font-size: 10px; padding: 3px 8px 3px 6px; }
   .cert .icon { width: 12px; height: 12px; }
+  .eco { top: 10px; right: 10px; font-size: 10px; padding: 3px 7px 3px 5px; }
+  .eco .icon { display: none; }
 
   .calc { padding: 20px; border-radius: var(--radius-lg); }
   .calc__form { padding: 16px; }

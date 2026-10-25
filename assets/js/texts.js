@@ -121,7 +121,8 @@ window.TEXTS = {
     },
 
     certs: {
-      ce: 'Сертификат CE'
+      ce: 'Сертификат CE',
+      eco: 'ECO'
     },
 
     warnings: {

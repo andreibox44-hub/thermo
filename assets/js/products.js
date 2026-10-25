@@ -24,12 +24,13 @@ window.HEATER_COMMON = {
   features: ['metal', 'touch', 'wifi']
 };
 
-/* Общее для всех товаров категории. certs — отметки сертификатов (тексты в texts.js → certs) */
+/* Общее для всех товаров категории. certs — отметки сертификатов (тексты в texts.js → certs),
+   eco — зелёная метка ECO на фото (как на карточках производителя) */
 window.CATEGORY_COMMON = {
-  floor: { deviceType: 'condensedSteam', certs: ['ce'] },
-  ventilated: { deviceType: 'condensedSteam', certs: ['ce'] },
-  inFloor: { deviceType: 'condensedSteam' },
-  aluminum: { deviceType: 'condensedSteam', certs: ['ce'], body: 'aluminum', control: 'electronic',
+  floor: { deviceType: 'condensedSteam', certs: ['ce'], eco: true },
+  ventilated: { deviceType: 'condensedSteam', certs: ['ce'], eco: true },
+  inFloor: { deviceType: 'condensedSteam', eco: true },
+  aluminum: { deviceType: 'condensedSteam', certs: ['ce'], eco: true, body: 'aluminum', control: 'electronic',
     voltage: 220, frequency: 50, network: 'single', lifetime: [30, 50], ceiling: 2.8, features: ['thermostat'] }
 };
 
