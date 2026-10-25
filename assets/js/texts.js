@@ -43,6 +43,7 @@ window.TEXTS = {
       MD: { name: 'Молдова', region: 'Район', regionPlaceholder: 'Например: Bălți', postalFormat: '4 цифры, можно с MD-', postalExample: 'MD-2001' },
       IT: { name: 'Италия', region: 'Провинция', regionPlaceholder: 'Например: Milano (MI)', postalFormat: '5 цифр', postalExample: '20121' },
       DE: { name: 'Германия', postalFormat: '5 цифр', postalExample: '10115' },
+      CH: { name: 'Швейцария', region: 'Кантон', regionPlaceholder: 'Например: Zürich (ZH)', postalFormat: '4 цифры', postalExample: '8001' },
       AT: { name: 'Австрия', postalFormat: '4 цифры', postalExample: '1010' },
       FR: { name: 'Франция', postalFormat: '5 цифр', postalExample: '75001' },
       ES: { name: 'Испания', region: 'Провинция', regionPlaceholder: 'Например: Madrid', postalFormat: '5 цифр', postalExample: '28001' },

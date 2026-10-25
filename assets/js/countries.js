@@ -11,11 +11,12 @@
  */
 window.COUNTRIES = [
   { code: 'RO', enabled: true, postal: '^\\d{6}$', region: true },
+  { code: 'DE', enabled: true, postal: '^\\d{5}$' },
+  { code: 'CH', enabled: true, postal: '^\\d{4}$', region: true },
+  { code: 'IT', enabled: true, postal: '^\\d{5}$', region: true },
 
   // Подготовлены, но выключены — включить, когда начнётся доставка
   { code: 'MD', enabled: false, postal: '^(MD-?)?\\d{4}$', region: true },
-  { code: 'IT', enabled: false, postal: '^\\d{5}$', region: true },
-  { code: 'DE', enabled: false, postal: '^\\d{5}$' },
   { code: 'AT', enabled: false, postal: '^\\d{4}$' },
   { code: 'FR', enabled: false, postal: '^\\d{5}$' },
   { code: 'ES', enabled: false, postal: '^\\d{5}$', region: true },
