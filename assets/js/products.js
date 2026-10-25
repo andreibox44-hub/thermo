@@ -64,7 +64,7 @@ window.PRODUCTS = [
     area: 40, volume: 100, power: 3000, current: 13.6, consumption: 535, dimensions: [1080, 540, 150], weight: 43 },
 
   /* Алюминиевые радиаторы. Данные — с карточек производителя; у ПКН-3-1.6-16
-     карточки нет, площадь и потребление уточняются */
+     карточки нет: площадь — от заказчика, объём и потребление уточняются */
   { id: 'pkn-3-0-42-4', type: 'aluminum', price: 0, order: 10, sections: 4, power: 420, current: 1.9,
     area: 6, volume: 15, consumption: 85, dimensions: [570, 380, 100], weight: 5.7 },
   { id: 'pkn-3-0-6-6', type: 'aluminum', price: 0, order: 11, sections: 6, power: 600, current: 2.7,
@@ -78,7 +78,7 @@ window.PRODUCTS = [
   { id: 'pkn-3-1-4-14', type: 'aluminum', price: 0, order: 15, sections: 14, power: 1400, current: 6.4,
     area: 18, volume: 47, consumption: 285, dimensions: [570, 1110, 100], weight: 18.6 },
   { id: 'pkn-3-1-6-16', type: 'aluminum', price: 0, order: 16, sections: 16, power: 1600, current: 7.3,
-    area: null, dimensions: [570, 1240, 100], weight: 22.1 },
+    area: 20, dimensions: [570, 1240, 100], weight: 22.1 },
 
   /* Аксессуары */
   { id: 'control-unit', type: 'accessory', price: 0, order: 20,
