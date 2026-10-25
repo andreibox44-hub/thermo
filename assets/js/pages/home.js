@@ -8,11 +8,46 @@
     return '<li><b>' + A.esc(s.value) + '</b><span>' + A.esc(s.label) + '</span></li>';
   }).join('');
 
-  /* Иллюстрация первого экрана */
+  /* Иллюстрация первого экрана: в большой карточке по очереди сменяются модели */
+  var SHOWCASE = ['pkn-2v', 'pkn-1', 'pkn-6v', 'pkn-3-1-0-10', 'pkn-3', 'pkn-2-in', 'pkn-0-5']
+    .map(A.getProduct).filter(Boolean);
   document.getElementById('hero-visual').innerHTML =
-    '<div class="hero__card hero__card--main">' + A.productImage(A.getProduct('pkn-2v')) + '</div>' +
+    '<a class="hero__card hero__card--main" id="hero-showcase" href="' + A.productUrl(SHOWCASE[0]) + '">' +
+      '<span class="hero__name" aria-live="polite"></span>' +
+      '<span class="hero__slides">' + SHOWCASE.map(function (p, i) {
+        return '<span class="hero__slide' + (i === 0 ? ' is-active' : '') + '">' + A.productImage(p) + '</span>';
+      }).join('') + '</span>' +
+    '</a>' +
     '<div class="hero__card hero__card--side">' + A.productImage(A.getProduct('control-unit')) + '</div>' +
     '<div class="hero__chip">' + A.icon('wifi') + '<div><b>' + t('home.hero.tempValue') + '</b><span>' + t('home.hero.tempLabel') + '</span></div></div>';
+
+  (function showcase() {
+    var link = document.getElementById('hero-showcase');
+    var name = link.querySelector('.hero__name');
+    var slides = link.querySelectorAll('.hero__slide');
+    var current = 0, timer = null, hover = false;
+
+    function label(p) {
+      return '<small>' + t('typeSingle.' + p.type) + '</small>' + A.esc(A.productText(p, 'name'));
+    }
+    function show(i) {
+      slides[current].classList.remove('is-active');
+      current = i;
+      slides[current].classList.add('is-active');
+      link.href = A.productUrl(SHOWCASE[current]);
+      name.classList.remove('is-in');
+      void name.offsetWidth; // перезапуск анимации подписи
+      name.innerHTML = label(SHOWCASE[current]);
+      name.classList.add('is-in');
+    }
+    function tick() { if (!hover && !document.hidden) show((current + 1) % slides.length); }
+
+    show(0);
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    timer = setInterval(tick, 3200);
+    link.addEventListener('mouseenter', function () { hover = true; });
+    link.addEventListener('mouseleave', function () { hover = false; });
+  })();
 
   /* Преимущества */
   var benefitIcons = ['lifetime', 'wifi', 'shield', 'bolt'];
