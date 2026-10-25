@@ -176,6 +176,8 @@ tools/build_geo.py          — сборка справочников assets/js/
 10. Вход через Google (код готов; сначала были ещё Apple, Facebook, Microsoft — по просьбе убраны).
 11. Миграции Supabase за сессию: `profiles_delivery_and_favorites`, `revoke_handle_new_user_execute`,
     `address_countries`, `address_full_details`, `profile_name_from_oauth` (всё повторено в setup.sql).
+12. Вход через Google настроен и проверен вживую (заказчик вошёл; Google привязался к его аккаунту по почте).
+13. Габариты «Ш × В × Г»: у радиаторов порядок исправлен по паспорту ВЭСТ ПКНА, у встраиваемых — без подписей.
 
 ## На чём остановились
 
