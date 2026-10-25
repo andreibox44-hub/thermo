@@ -1,19 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Glowden: «тёплое логово». Контур домика складывается в букву G,
+       внутри — светящийся уголёк, вокруг — тёплое сияние. -->
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22c55e"/>
-      <stop offset="1" stop-color="#15803d"/>
+    <linearGradient id="night" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a2150"/>
+      <stop offset="1" stop-color="#170d24"/>
     </linearGradient>
-    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f87171"/>
-      <stop offset="1" stop-color="#dc2626"/>
+    <radialGradient id="halo" cx="30" cy="40" r="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff8a3d" stop-opacity=".75"/>
+      <stop offset=".45" stop-color="#ff6b2c" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#ff6b2c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#ff6b2c"/>
     </linearGradient>
+    <radialGradient id="ember" cx="29" cy="39" r="6.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fffbea"/>
+      <stop offset=".45" stop-color="#ffd166"/>
+      <stop offset="1" stop-color="#ff7a2f"/>
+    </radialGradient>
   </defs>
-  <!-- Зелёный квадрат со скруглёнными углами -->
-  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
-  <!-- Красный огонёк со светлой обводкой, чтобы читался на зелёном даже в 16 px -->
-  <path d="M32 9c2 10.5 15 15.5 15 29.5a15 15 0 0 1-30 0c0-7.5 3.8-11.8 7-15 .6 4.6 3 7.8 5.8 8.8C29.6 24 30.4 15.6 32 9z"
-        fill="url(#flame)" stroke="#fff" stroke-width="3" stroke-linejoin="round" paint-order="stroke"/>
-  <path d="M32.5 31c1.2 5.2 7.5 7.4 7.5 13a8 8 0 0 1-16 0c0-3.6 2-5.8 3.6-7.3.4 2 1.4 3.3 2.6 3.8.2-3.6.9-6.7 2.3-9.5z"
-        fill="#fecaca" opacity=".55"/>
+
+  <!-- Ночной фон и сияние из «логова» -->
+  <rect width="64" height="64" rx="16" fill="url(#night)"/>
+  <rect width="64" height="64" rx="16" fill="url(#halo)"/>
+
+  <!-- Домик-G: крыша, стены, а правая стена уходит внутрь перекладиной буквы G -->
+  <path d="M47 26 32 14 17 26v17.5a6.5 6.5 0 0 0 6.5 6.5h17a6.5 6.5 0 0 0 6.5-6.5V37H37"
+        fill="none" stroke="url(#warm)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Уголёк: мягкий ореол и яркая сердцевина -->
+  <circle cx="29" cy="39" r="9" fill="#ffb347" opacity=".3"/>
+  <circle cx="29" cy="39" r="5.5" fill="url(#ember)"/>
 </svg>

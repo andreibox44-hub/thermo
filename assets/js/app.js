@@ -474,7 +474,11 @@
 
   var page = document.body.getAttribute('data-page');
   // Значок логотипа — тот же файл, что и иконка вкладки (favicon)
-  var LOGO_MARK = '<img class="logo__mark" src="assets/img/logo.svg" alt="" width="38" height="38">';
+  var LOGO_MARK = '<img class="logo__mark" src="assets/img/logo.svg?v=2" alt="" width="38" height="38">';
+  // «Glow» — тёплым градиентом, «den» — цветом текста
+  function logoText() {
+    return '<span class="logo__text"><span class="logo__glow">' + t('brand.glow') + '</span>' + t('brand.den') + '</span>';
+  }
 
   function renderHeader() {
     var links = [
@@ -495,7 +499,7 @@
     document.getElementById('site-header').innerHTML =
       '<header class="header">' +
         '<div class="container header__inner">' +
-          '<a class="logo" href="index.html">' + LOGO_MARK + '<span class="logo__text">' + t('brand.name') + '</span></a>' +
+          '<a class="logo" href="index.html">' + LOGO_MARK + logoText() + '</a>' +
           '<nav class="nav" id="site-nav">' +
             links.map(function (l) {
               return '<a class="nav__link' + (l.key === activeKey ? ' is-active' : '') + '" href="' + l.href + '"' +
@@ -562,7 +566,7 @@
       '<footer class="footer">' +
         '<div class="container footer__grid">' +
           '<div class="footer__about">' +
-            '<a class="logo logo--light" href="index.html">' + LOGO_MARK + '<span class="logo__text">' + t('brand.name') + '</span></a>' +
+            '<a class="logo logo--light" href="index.html">' + LOGO_MARK + logoText() + '</a>' +
             '<p>' + t('footer.about') + '</p>' +
           '</div>' +
           '<div><h4>' + t('footer.catalogTitle') + '</h4><ul>' +

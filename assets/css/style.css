@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Термо — стили магазина
+   Glowden — стили магазина
    ========================================================================== */
 
 :root {
@@ -232,8 +232,16 @@ select.input {
 .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 22px; letter-spacing: -.03em; }
 .logo__mark {
   display: block; flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px;
-  box-shadow: 0 6px 14px rgba(21, 128, 61, .28);
+  box-shadow: 0 6px 16px rgba(58, 33, 80, .3), 0 2px 10px rgba(255, 107, 44, .22);
+  transition: transform .35s cubic-bezier(.2, .8, .2, 1), box-shadow .35s;
 }
+/* При наведении «логово» разгорается */
+.logo:hover .logo__mark { transform: rotate(-6deg) scale(1.06); box-shadow: 0 6px 16px rgba(58, 33, 80, .3), 0 4px 22px rgba(255, 140, 60, .55); }
+.logo__glow {
+  background: linear-gradient(100deg, #ffb347, #ff6b2c 55%, #f0441c);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.logo--light .logo__mark { box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 4px 18px rgba(255, 107, 44, .3); }
 .logo--light { color: #fff; }
 
 .nav { display: flex; gap: 4px; }

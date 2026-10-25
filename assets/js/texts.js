@@ -20,7 +20,10 @@ window.TEXTS = {
     },
 
     brand: {
-      name: 'Термо',
+      name: 'Glowden',
+      // Надпись логотипа: «Glow» — тёплым градиентом, «den» — цветом текста
+      glow: 'Glow',
+      den: 'den',
       tagline: 'Обогреватели ПКН'
     },
 
@@ -42,14 +45,14 @@ window.TEXTS = {
     },
 
     pages: {
-      home: 'Термо — обогреватели ПКН',
-      catalog: 'Каталог обогревателей ПКН — Термо',
-      product: '{name} — Термо',
-      productNotFound: 'Товар не найден — Термо',
-      cart: 'Корзина — Термо',
-      contacts: 'Контакты — Термо',
-      account: 'Личный кабинет — Термо',
-      legal: '{title} — Термо'
+      home: 'Glowden — обогреватели ПКН',
+      catalog: 'Каталог обогревателей ПКН — Glowden',
+      product: '{name} — Glowden',
+      productNotFound: 'Товар не найден — Glowden',
+      cart: 'Корзина — Glowden',
+      contacts: 'Контакты — Glowden',
+      account: 'Личный кабинет — Glowden',
+      legal: '{title} — Glowden'
     },
 
     common: {
@@ -734,7 +737,7 @@ window.TEXTS = {
       country: 'Румыния',
       address: 'Адрес уточняется',
       email: 'info@example.com',
-      rights: '© {year} Термо. Все права защищены.',
+      rights: '© {year} Glowden. Все права защищены.',
       demo: 'Демонстрационный магазин: заказы не обрабатываются.'
     },
 
