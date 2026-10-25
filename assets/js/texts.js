@@ -39,19 +39,83 @@ window.TEXTS = {
     /* Страны доставки (данные — в countries.js). region — подпись поля региона,
        postalFormat — как выглядит индекс (для подсказки и ошибки), postalExample — пример */
     countries: {
-      RO: { name: 'Румыния', region: 'Уезд (județ)', regionPlaceholder: 'Например: Botoșani', postalFormat: '6 цифр', postalExample: '710013' },
-      MD: { name: 'Молдова', region: 'Район', regionPlaceholder: 'Например: Bălți', postalFormat: '4 цифры, можно с MD-', postalExample: 'MD-2001' },
-      IT: { name: 'Италия', region: 'Провинция', regionPlaceholder: 'Например: Milano (MI)', postalFormat: '5 цифр', postalExample: '20121' },
-      DE: { name: 'Германия', postalFormat: '5 цифр', postalExample: '10115' },
-      CH: { name: 'Швейцария', region: 'Кантон', regionPlaceholder: 'Например: Zürich (ZH)', postalFormat: '4 цифры', postalExample: '8001' },
-      AT: { name: 'Австрия', postalFormat: '4 цифры', postalExample: '1010' },
-      FR: { name: 'Франция', postalFormat: '5 цифр', postalExample: '75001' },
-      ES: { name: 'Испания', region: 'Провинция', regionPlaceholder: 'Например: Madrid', postalFormat: '5 цифр', postalExample: '28001' },
-      BG: { name: 'Болгария', region: 'Область', regionPlaceholder: 'Например: Varna', postalFormat: '4 цифры', postalExample: '1000' },
-      HU: { name: 'Венгрия', postalFormat: '4 цифры', postalExample: '1051' },
-      PL: { name: 'Польша', postalFormat: 'NN-NNN', postalExample: '00-001' },
-      NL: { name: 'Нидерланды', postalFormat: '4 цифры и 2 буквы', postalExample: '1012 AB' },
-      BE: { name: 'Бельгия', postalFormat: '4 цифры', postalExample: '1000' }
+      RO: { name: 'Румыния', region: 'Уезд (județ)', regionPlaceholder: 'Например: Botoșani', postalFormat: '6 цифр', postalExample: '710013', vat: 'CUI / CIF', vatExample: 'RO12345678' },
+      MD: { name: 'Молдова', region: 'Район', regionPlaceholder: 'Например: Bălți', postalFormat: '4 цифры, можно с MD-', postalExample: 'MD-2001', vat: 'IDNO', vatExample: '1002600000000' },
+      IT: { name: 'Италия', region: 'Провинция', regionPlaceholder: 'Например: Milano (MI)', postalFormat: '5 цифр', postalExample: '20121', vat: 'Partita IVA', vatExample: 'IT12345678901' },
+      DE: { name: 'Германия', postalFormat: '5 цифр', postalExample: '10115', vat: 'USt-IdNr.', vatExample: 'DE123456789' },
+      CH: { name: 'Швейцария', region: 'Кантон', regionPlaceholder: 'Например: Zürich (ZH)', postalFormat: '4 цифры', postalExample: '8001', vat: 'UID (MWST-Nr.)', vatExample: 'CHE-123.456.789' },
+      AT: { name: 'Австрия', postalFormat: '4 цифры', postalExample: '1010', vat: 'UID-Nummer', vatExample: 'ATU12345678' },
+      FR: { name: 'Франция', postalFormat: '5 цифр', postalExample: '75001', vat: 'Numéro de TVA', vatExample: 'FR12345678901' },
+      ES: { name: 'Испания', region: 'Провинция', regionPlaceholder: 'Например: Madrid', postalFormat: '5 цифр', postalExample: '28001', vat: 'NIF / CIF', vatExample: 'ESB12345678' },
+      BG: { name: 'Болгария', region: 'Область', regionPlaceholder: 'Например: Varna', postalFormat: '4 цифры', postalExample: '1000', vat: 'ЕИК / ДДС номер', vatExample: 'BG123456789' },
+      HU: { name: 'Венгрия', postalFormat: '4 цифры', postalExample: '1051', vat: 'Adószám', vatExample: 'HU12345678' },
+      PL: { name: 'Польша', postalFormat: 'NN-NNN', postalExample: '00-001', vat: 'NIP', vatExample: 'PL1234567890' },
+      NL: { name: 'Нидерланды', postalFormat: '4 цифры и 2 буквы', postalExample: '1012 AB', vat: 'Btw-nummer', vatExample: 'NL123456789B01' },
+      BE: { name: 'Бельгия', postalFormat: '4 цифры', postalExample: '1000', vat: 'Numéro de TVA / btw', vatExample: 'BE0123456789' }
+    },
+
+    /* Адрес доставки — общая форма для кабинета и корзины (assets/js/address.js) */
+    address: {
+      sections: {
+        place: 'Адрес доставки',
+        recipient: 'Получатель',
+        invoice: 'Счёт на фирму'
+      },
+      form: {
+        country: 'Страна',
+        city: 'Город или населённый пункт',
+        cityPlaceholder: 'Начните вводить — подскажем',
+        region: 'Регион',
+        regionChoose: '— выберите —',
+        postalCode: 'Почтовый индекс',
+        postalCodePlaceholder: 'Например: {example}',
+        street: 'Улица',
+        streetPlaceholder: 'Название улицы',
+        house: 'Дом',
+        housePlaceholder: 'Номер',
+        apartment: 'Квартира, офис',
+        apartmentPlaceholder: 'Необязательно',
+        floor: 'Этаж',
+        floorPlaceholder: 'Например: 3',
+        building: 'Тип здания',
+        buildingChoose: '— выберите —',
+        buildings: {
+          house: 'Частный дом',
+          elevator: 'Многоквартирный, есть лифт',
+          stairs: 'Многоквартирный, без лифта'
+        },
+        buildingHint: 'Обогреватели весят до 43 кг — курьеру важно знать этаж и есть ли лифт.',
+        recipientOther: 'Получать будет другой человек',
+        recipientName: 'Имя и фамилия получателя',
+        recipientPhone: 'Телефон получателя',
+        invoice: 'Нужен счёт на фирму',
+        company: 'Название фирмы',
+        vatId: 'Налоговый номер',
+        vatPlaceholder: 'Например: {example}',
+        deliveryNote: 'Комментарий для курьера',
+        deliveryNotePlaceholder: 'Например: позвонить за час, код домофона 25',
+        source: 'Подсказки городов и индексов — {link}, CC BY 4.0'
+      },
+      suggest: {
+        postal: 'индекс {code}',
+        postalMany: 'индексов: {count}'
+      },
+      hints: {
+        postalMany: 'У этого места несколько индексов — укажите индекс своей улицы.',
+        postalUnknown: 'Индекса {code} нет в справочнике — проверьте его.',
+        postalOther: 'Индекс {code} относится к: {places}.'
+      },
+      errors: {
+        city: 'Укажите город или населённый пункт',
+        region: 'Выберите регион',
+        postalCode: 'Проверьте индекс: {format}, например {example}',
+        street: 'Укажите улицу',
+        house: 'Укажите номер дома',
+        recipientName: 'Укажите имя получателя',
+        recipientPhone: 'Укажите телефон получателя полностью',
+        company: 'Укажите название фирмы',
+        vatId: 'Укажите налоговый номер'
+      }
     },
 
     favorites: {
@@ -375,13 +439,6 @@ window.TEXTS = {
         phonePlaceholder: '+40 7XX XXX XXX',
         email: 'Эл. почта',
         emailPlaceholder: 'name@example.com',
-        city: 'Город',
-        address: 'Адрес доставки',
-        country: 'Страна',
-        region: 'Регион',
-        postalCode: 'Почтовый индекс',
-        postalCodePlaceholder: 'Например: {example}',
-        addressPlaceholder: 'Улица, дом, квартира',
         comment: 'Комментарий к заказу',
         payment: 'Способ оплаты',
         paymentCard: 'Картой онлайн',
@@ -394,10 +451,7 @@ window.TEXTS = {
       errors: {
         name: 'Укажите имя',
         phone: 'Укажите телефон полностью',
-        email: 'Проверьте адрес почты',
-        city: 'Укажите город',
-        address: 'Укажите адрес',
-        postalCode: 'Проверьте индекс: {format}, например {example}'
+        email: 'Проверьте адрес почты'
       },
       account: {
         signedIn: 'Вы вошли как {email} — заказ сохранится в личном кабинете.',
@@ -437,16 +491,7 @@ window.TEXTS = {
         passwordHint: 'Не меньше 8 символов',
         newPassword: 'Новый пароль',
         phone: 'Телефон',
-        phonePlaceholder: '+40 7XX XXX XXX',
-        city: 'Город',
-        address: 'Адрес доставки',
-        addressPlaceholder: 'Улица, дом, квартира',
-        country: 'Страна',
-        region: 'Регион',
-        postalCode: 'Почтовый индекс',
-        postalCodePlaceholder: 'Например: {example}',
-        street: 'Улица, дом, квартира',
-        streetPlaceholder: 'Например: Str. Mihai Eminescu nr. 10, ap. 5'
+        phonePlaceholder: '+40 7XX XXX XXX'
       },
       sections: {
         profile: 'Мои данные',
@@ -524,7 +569,6 @@ window.TEXTS = {
         password: 'Пароль — не меньше 8 символов',
         passwordEmpty: 'Введите пароль',
         phone: 'Укажите телефон полностью',
-        postalCode: 'Проверьте индекс: {format}, например {example}',
         generic: 'Что-то пошло не так. Попробуйте ещё раз.',
         network: 'Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.',
         invalid_credentials: 'Неверная почта или пароль.',
@@ -679,8 +723,8 @@ window.TEXTS = {
               'Оператор — {company}, код CUI {cui}, юридический адрес: {address}. По вопросам защиты данных пишите на {email}.'
             ] },
             { title: '2. Какие данные мы обрабатываем', list: [
-              'Данные заказа: имя и фамилия, телефон, эл. почта (по желанию), адрес доставки (страна, регион, город, улица, индекс), комментарий, выбранный способ оплаты и состав заказа.',
-              'Данные личного кабинета (если вы зарегистрировались): эл. почта, пароль (хранится только в виде хеша — мы его не видим), имя, телефон, адрес доставки (страна, регион, город, улица, индекс), избранные товары и история заказов.',
+              'Данные заказа: имя и фамилия, телефон, эл. почта (по желанию), адрес доставки (страна, регион, город, индекс, улица, дом, квартира, этаж и тип здания), комментарий для курьера; если вы их указали — имя и телефон получателя, название фирмы и налоговый номер для счёта; комментарий, выбранный способ оплаты и состав заказа.',
+              'Данные личного кабинета (если вы зарегистрировались): эл. почта, пароль (хранится только в виде хеша — мы его не видим), имя, телефон, адрес доставки (страна, регион, город, индекс, улица, дом, квартира, этаж и тип здания, комментарий для курьера), данные получателя и фирмы для счёта, если вы их указали, избранные товары и история заказов.',
               'Данные обращений: имя, телефон или эл. почта и текст сообщения из формы «Напишите нам».',
               'Технические данные: при загрузке сайта хостинг-провайдер получает IP-адрес и данные браузера. Хостинг-провайдер — уточняется.'
             ] },

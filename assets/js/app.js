@@ -205,28 +205,6 @@
       return list.map(function (c) {
         return '<option value="' + c.code + '"' + (c.code === selected ? ' selected' : '') + '>' + esc(countries.name(c.code)) + '</option>';
       }).join('');
-    },
-    /**
-     * Подстраивает поля адреса под страну: подпись и видимость региона, пример индекса.
-     * В форме: select[name=country], поле region (обёртка .field) и input[name=postal_code].
-     */
-    applyToForm: function (form, prefix) {
-      var code = form.elements.country.value;
-      var c = countries.get(code) || {};
-      var region = form.elements.region;
-      if (region) {
-        var wrap = region.closest('.field');
-        wrap.hidden = !c.region;
-        if (!c.region) region.value = '';
-        wrap.querySelector('label').firstChild.textContent = countries.text(code, 'region') || t(prefix + '.form.region');
-        region.placeholder = countries.text(code, 'regionPlaceholder');
-      }
-      var postal = form.elements.postal_code;
-      if (postal) postal.placeholder = t(prefix + '.form.postalCodePlaceholder', { example: countries.text(code, 'postalExample') });
-    },
-    /** Текст ошибки индекса для страны. */
-    postalError: function (code, prefix) {
-      return t(prefix + '.errors.postalCode', { format: countries.text(code, 'postalFormat'), example: countries.text(code, 'postalExample') });
     }
   };
 

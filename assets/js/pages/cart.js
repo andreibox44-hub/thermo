@@ -6,6 +6,7 @@
   var ordered = false;
   var auth = A.auth && A.auth.enabled ? A.auth : null;
   var account = null; // { user, profile }, если покупатель вошёл
+  var addressForm = null; // App.address.bind() формы заказа
   var crumbs = A.breadcrumbs([{ label: t('nav.home'), href: 'index.html' }, { label: t('nav.cart') }]);
 
   function renderEmpty() {
@@ -48,13 +49,9 @@
               field('name', { required: true, autocomplete: 'name' }) +
               field('phone', { required: true, type: 'tel', placeholder: 'cart.form.phonePlaceholder', autocomplete: 'tel' }) +
               field('email', { type: 'email', placeholder: 'cart.form.emailPlaceholder', autocomplete: 'email' }) +
-              '<div class="field field--wide"><label class="field__label" for="f-country">' + t('cart.form.country') + ' <span class="req" title="' + A.esc(t('common.required')) + '">*</span></label>' +
-                '<select class="input" id="f-country" name="country" autocomplete="country">' + A.countries.options(A.countries.fallback()) + '</select></div>' +
-              field('city', { required: true, autocomplete: 'address-level2' }) +
-              field('region', { autocomplete: 'address-level1' }) +
-              field('address', { required: true, wide: true, placeholder: 'cart.form.addressPlaceholder', autocomplete: 'street-address' }) +
-              field('postal_code', { label: 'postalCode', autocomplete: 'postal-code' }) +
-              '<fieldset class="field field--wide"><legend class="field__label">' + t('cart.form.payment') + '</legend>' +
+              A.address.fields('f') +
+              '<h3 class="form__section field--wide">' + t('cart.form.payment') + '</h3>' +
+              '<fieldset class="field field--wide"><legend class="visually-hidden">' + t('cart.form.payment') + '</legend>' +
                 '<div class="segmented">' +
                   '<label><input type="radio" name="payment" value="card" checked><span>' + t('cart.form.paymentCard') + '</span></label>' +
                   '<label><input type="radio" name="payment" value="cash"><span>' + t('cart.form.paymentCash') + '</span></label>' +
@@ -71,11 +68,7 @@
     });
     var checkout = document.getElementById('checkout');
     checkout.addEventListener('submit', submit);
-    A.countries.applyToForm(checkout, 'cart');
-    checkout.elements.country.addEventListener('change', function () {
-      checkout.dataset.countryTouched = '1'; // страну выбрали вручную — профиль её не перезапишет
-      A.countries.applyToForm(checkout, 'cart');
-    });
+    addressForm = A.address.bind(checkout);
     applyAccount();
   }
 
@@ -91,16 +84,12 @@
     note.textContent = t('cart.account.signedIn', { email: account.user.email });
     var form = document.getElementById('checkout');
     var p = account.profile;
-    // Страну из профиля подставляем, только если в неё сейчас доставляем
-    var deliverable = A.countries.list.some(function (c) { return c.code === p.country; });
-    if (deliverable && !form.dataset.countryTouched) {
-      form.elements.country.innerHTML = A.countries.options(p.country);
-      A.countries.applyToForm(form, 'cart');
-    }
-    var fill = { name: p.name, phone: p.phone, email: account.user.email, city: p.city, region: p.region, address: p.address, postal_code: p.postal_code };
+    var fill = { name: p.name, phone: p.phone, email: account.user.email };
     Object.keys(fill).forEach(function (n) {
       if (fill[n] && !form.elements[n].value) form.elements[n].value = fill[n];
     });
+    // Адрес из профиля (страна — только если в неё сейчас доставляем); введённое вручную не трогаем
+    if (addressForm) addressForm.fill(p, true);
   }
 
   function loadAccount() {
@@ -176,9 +165,8 @@
     if (!v('name')) errors.name = t('cart.errors.name');
     if (v('phone').replace(/\D/g, '').length < 10) errors.phone = t('cart.errors.phone');
     if (v('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) errors.email = t('cart.errors.email');
-    if (!v('city')) errors.city = t('cart.errors.city');
-    if (!v('address')) errors.address = t('cart.errors.address');
-    if (v('postal_code') && !A.countries.postalValid(v('country'), v('postal_code'))) errors.postal_code = A.countries.postalError(v('country'), 'cart');
+    var addressErrors = A.address.validate(form);
+    Object.keys(addressErrors).forEach(function (k) { errors[k] = addressErrors[k]; });
 
     form.querySelectorAll('[data-error-for]').forEach(function (el) {
       var name = el.getAttribute('data-error-for');
@@ -201,19 +189,18 @@
     var errorEl = document.getElementById('checkout-error');
     btn.disabled = true;
     errorEl.textContent = '';
-    auth.createOrder({
+    var order = {
       items: A.cart.read().map(function (i) { return { id: i.id, qty: i.qty, price: A.getProduct(i.id).price }; }),
       name: v('name'),
       phone: v('phone'),
       email: v('email') || null,
-      country: v('country'),
-      region: v('region') || null,
-      postal_code: v('postal_code').toUpperCase() || null,
-      city: v('city'),
-      address: v('address'),
       comment: v('comment') || null,
       payment: form.elements.payment.value
-    }).then(function (number) {
+    };
+    // Адрес: пустые необязательные поля — null
+    var addr = A.address.read(form);
+    Object.keys(addr).forEach(function (k) { order[k] = addr[k] || null; });
+    auth.createOrder(order).then(function (number) {
       success(number, true);
     }, function (err) {
       btn.disabled = false;

@@ -11,7 +11,17 @@ create table if not exists public.profiles (
   name text not null default '',
   phone text not null default '',
   city text not null default '',
-  address text not null default '',
+  address text not null default '',      -- улица
+  house text not null default '',
+  apartment text not null default '',
+  floor text not null default '',
+  building text not null default ''      -- тип здания: house, elevator, stairs
+    constraint profiles_building_kind check (building in ('', 'house', 'elevator', 'stairs')),
+  recipient_name text not null default '',
+  recipient_phone text not null default '',
+  company text not null default '',      -- счёт на фирму
+  vat_id text not null default '',
+  delivery_note text not null default '',
   country text not null default 'RO'     -- код страны (ISO), список — assets/js/countries.js
     constraint profiles_country_code check (country ~ '^[A-Z]{2}$'),
   region text not null default '',       -- регион: уезд (județ), провинция, область…
@@ -63,7 +73,17 @@ create table if not exists public.orders (
   region text,
   postal_code text,
   city text not null,
-  address text not null,
+  address text not null,                -- улица
+  house text,
+  apartment text,
+  floor text,
+  building text
+    constraint orders_building_kind check (building is null or building in ('house', 'elevator', 'stairs')),
+  recipient_name text,
+  recipient_phone text,
+  company text,
+  vat_id text,
+  delivery_note text,
   comment text,
   payment text not null check (payment in ('card', 'cash')),
   status text not null default 'new',  -- new, processing, shipped, done, cancelled
@@ -108,3 +128,25 @@ alter table public.orders
   add column if not exists country text not null default 'RO',
   add column if not exists region text,
   add column if not exists postal_code text;
+
+-- ---------- Обновление (2026-10-25): полный адрес ----------
+alter table public.profiles
+  add column if not exists house text not null default '',
+  add column if not exists apartment text not null default '',
+  add column if not exists floor text not null default '',
+  add column if not exists building text not null default '',
+  add column if not exists recipient_name text not null default '',
+  add column if not exists recipient_phone text not null default '',
+  add column if not exists company text not null default '',
+  add column if not exists vat_id text not null default '',
+  add column if not exists delivery_note text not null default '';
+alter table public.orders
+  add column if not exists house text,
+  add column if not exists apartment text,
+  add column if not exists floor text,
+  add column if not exists building text,
+  add column if not exists recipient_name text,
+  add column if not exists recipient_phone text,
+  add column if not exists company text,
+  add column if not exists vat_id text,
+  add column if not exists delivery_note text;

@@ -5,15 +5,17 @@
  * enabled — доставляем ли в эту страну: только такие страны видны в адресе и при заказе.
  * postal  — формат почтового индекса (регулярное выражение, без учёта регистра).
  * region  — есть ли поле «регион» (уезд, провинция, область…); подпись — в texts.js.
+ * geo     — есть справочник городов и индексов assets/js/geo/<код>.js (собирается tools/build_geo.py
+ *           из GeoNames): подсказки городов, регион из списка, город по индексу.
  *
  * Как добавить страну: поставить enabled: true (или добавить запись) и проверить, что в
  * texts.js → countries есть её название и подписи. Первая включённая страна — по умолчанию.
  */
 window.COUNTRIES = [
-  { code: 'RO', enabled: true, postal: '^\\d{6}$', region: true },
-  { code: 'DE', enabled: true, postal: '^\\d{5}$' },
-  { code: 'CH', enabled: true, postal: '^\\d{4}$', region: true },
-  { code: 'IT', enabled: true, postal: '^\\d{5}$', region: true },
+  { code: 'RO', enabled: true, geo: true, postal: '^\\d{6}$', region: true },
+  { code: 'DE', enabled: true, geo: true, postal: '^\\d{5}$' },
+  { code: 'CH', enabled: true, geo: true, postal: '^\\d{4}$', region: true },
+  { code: 'IT', enabled: true, geo: true, postal: '^\\d{5}$', region: true },
 
   // Подготовлены, но выключены — включить, когда начнётся доставка
   { code: 'MD', enabled: false, postal: '^(MD-?)?\\d{4}$', region: true },
