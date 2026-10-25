@@ -35,12 +35,13 @@ window.CATEGORY_COMMON = {
 };
 
 /* Версия фото: увеличить после замены файлов в assets/img/products, чтобы браузер не показывал старые */
-window.IMAGE_VERSION = 3;
+window.IMAGE_VERSION = 4;
 
 window.PRODUCTS = [
   /* Напольные */
   { id: 'pkn-0-5', type: 'floor', mount: 'floor', price: 0, order: 1,
-    area: 7, volume: 17.5, power: 500, current: 2.2, consumption: 85, dimensions: [600, 150, 120], weight: 10 },
+    area: 7, volume: 17.5, power: 500, current: 2.2, consumption: 85, dimensions: [600, 150, 120], weight: 10,
+    eco: false /* значок ECO уже на фото: на карточке он закрывает угол обогревателя */ },
   { id: 'pkn-1', type: 'floor', mount: 'floor', price: 0, order: 2,
     area: 14, volume: 35, power: 1000, current: 4.5, consumption: 170, dimensions: [600, 400, 150], weight: 20 },
   { id: 'pkn-2', type: 'floor', mount: 'floor', price: 0, order: 3,
