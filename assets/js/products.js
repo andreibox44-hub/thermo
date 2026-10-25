@@ -34,6 +34,9 @@ window.CATEGORY_COMMON = {
     voltage: 220, frequency: 50, network: 'single', lifetime: [30, 50], ceiling: 2.8, features: ['thermostat'] }
 };
 
+/* Версия фото: увеличить после замены файлов в assets/img/products, чтобы браузер не показывал старые */
+window.IMAGE_VERSION = 2;
+
 window.PRODUCTS = [
   /* Напольные */
   { id: 'pkn-0-5', type: 'floor', mount: 'floor', price: 0, order: 1,
@@ -88,7 +91,7 @@ window.PRODUCTS.forEach(function (p) {
   merge(window.CATEGORY_COMMON[p.type] || {});
   if (window.HEATER_COMMON_TYPES.indexOf(p.type) !== -1) merge(window.HEATER_COMMON);
   p.features = (p.features || []).concat(p.extraFeatures || []);
-  if (p.image === undefined) p.image = 'assets/img/products/' + p.id + '.webp';
+  if (p.image === undefined) p.image = 'assets/img/products/' + p.id + '.webp?v=' + window.IMAGE_VERSION;
   p.certs = p.certs || [];
   p.warnings = p.warnings || [];
 });
