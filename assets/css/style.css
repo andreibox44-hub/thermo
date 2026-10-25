@@ -746,6 +746,21 @@ select.input {
 .auth { max-width: 480px; margin: 0 auto; }
 .auth .panel > .segmented { margin-bottom: 16px; }
 .auth__intro { margin-bottom: 20px; font-size: 15px; }
+/* Вход через Google, Apple и др. */
+.oauth { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.oauth[hidden] { display: none; }
+.oauth__btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 16px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text);
+  font: inherit; font-weight: 700; cursor: pointer; transition: border-color .2s, background .2s;
+}
+.oauth__btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+.oauth__btn:hover { border-color: var(--text-3); }
+.oauth__btn:disabled { opacity: .6; cursor: progress; }
+.oauth__btn--apple { background: #000; border-color: #000; color: #fff; }
+.oauth__btn--apple:hover { background: #1f1f1f; border-color: #1f1f1f; }
+.oauth__or { display: flex; align-items: center; gap: 12px; margin: 6px 0 0; font-size: 13px; color: var(--text-3); }
+.oauth__or::before, .oauth__or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .auth .muted + .form { margin-top: 0; }
 
 .account__head { display: flex; flex-direction: column; gap: 6px; min-width: 0; }

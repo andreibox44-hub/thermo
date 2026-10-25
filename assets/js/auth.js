@@ -37,8 +37,40 @@
     return A.t('account.errors.generic');
   }
 
+  // Вход через сторонние сервисы — в этом порядке; кнопки видны только у включённых в Supabase
+  var OAUTH_ORDER = ['google', 'apple', 'facebook', 'azure'];
+  var providersPromise = null;
+
   A.auth = {
     enabled: enabled,
+    OAUTH_ORDER: OAUTH_ORDER,
+
+    /**
+     * Какие сервисы входа включены в Supabase (Authentication → Sign In / Providers).
+     * Включили там Google — кнопка появляется сама. Ошибка сети — просто без кнопок.
+     */
+    providers: function () {
+      if (!providersPromise) {
+        providersPromise = window.fetch(cfg.supabaseUrl + '/auth/v1/settings', { headers: { apikey: cfg.supabaseKey } })
+          .then(function (r) { return r.ok ? r.json() : {}; })
+          .then(function (d) { return OAUTH_ORDER.filter(function (p) { return d.external && d.external[p]; }); })
+          .catch(function () { return []; });
+      }
+      return providersPromise;
+    },
+    /** Переход на страницу входа сервиса; после входа сервис вернёт на эту же страницу. */
+    signInWithProvider: function (provider) {
+      // Сервис возвращает покупателя по адресу сайта — у файла, открытого с диска, адреса нет
+      if (!returnUrl()) {
+        var err = new Error('needs hosting');
+        err.code = 'oauth_needs_hosting';
+        return Promise.reject(err);
+      }
+      return client.auth.signInWithOAuth({
+        provider: provider,
+        options: { redirectTo: returnUrl(), scopes: provider === 'azure' ? 'email' : undefined }
+      }).then(unwrap);
+    },
     recovery: recovery,
     errorText: errorText,
 

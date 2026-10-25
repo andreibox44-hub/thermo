@@ -103,6 +103,7 @@
           }).join('') +
         '</div>' +
         '<p class="muted auth__intro">' + t('account.intro') + '</p>' +
+        '<div class="oauth" id="oauth" hidden></div>' +
         '<form class="form" id="auth-form" novalidate>' +
           (signUp ? field('signUp', 'name', { autocomplete: 'name' }) : '') +
           field(mode, 'email', { type: 'email', placeholder: 'account.form.emailPlaceholder', autocomplete: 'email' }) +
@@ -129,6 +130,48 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       submitGuest(mode, form);
+    });
+    renderOAuth(form);
+    // Ошибка, с которой сервис входа вернул на сайт
+    if (oauthError) { setFormError(form, t('account.oauth.failed', { reason: oauthError })); oauthError = ''; }
+  }
+
+  /* ---------- Вход через Google, Apple и др. ---------- */
+
+  // Значки сервисов (официальные цвета)
+  var OAUTH_ICONS = {
+    google: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.2-2.1 3.5-5.1 3.5-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3c-1.1.7-2.5 1.2-4.1 1.2-3.1 0-5.8-2.1-6.7-5H1.3v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.3 14.3a7.2 7.2 0 0 1 0-4.6V6.6H1.3a12 12 0 0 0 0 10.8l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.3 6.6l4 3.1c.9-2.9 3.6-4.9 6.7-4.9z"/></svg>',
+    apple: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.7c0-2.6 2.1-3.8 2.2-3.9a4.8 4.8 0 0 0-3.8-2c-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.5-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.5 1.3 0 1.7-.8 3.3-.8 1.5 0 1.9.8 3.3.8 1.4 0 2.2-1.2 3-2.4a10 10 0 0 0 1.4-2.8c-.1 0-2.7-1-2.7-4.1zM13.9 5.2c.7-.8 1.2-2 1-3.2-1 0-2.3.7-3 1.5-.7.7-1.2 1.9-1.1 3.1 1.2.1 2.3-.6 3.1-1.4z"/></svg>',
+    facebook: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg>',
+    azure: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#F25022" d="M1 1h10.5v10.5H1z"/><path fill="#7FBA00" d="M12.5 1H23v10.5H12.5z"/><path fill="#00A4EF" d="M1 12.5h10.5V23H1z"/><path fill="#FFB900" d="M12.5 12.5H23V23H12.5z"/></svg>'
+  };
+  var oauthError = '';
+
+  function renderOAuth(form) {
+    var box = document.getElementById('oauth');
+    if (!box) return;
+    auth.providers().then(function (list) {
+      if (!list.length || !document.body.contains(box)) return;
+      box.innerHTML = list.map(function (p) {
+        var name = t('account.oauth.providers.' + p);
+        return '<button type="button" class="oauth__btn oauth__btn--' + p + '" data-oauth="' + p + '">' + OAUTH_ICONS[p] +
+          '<span>' + t('account.oauth.with', { provider: name }) + '</span></button>';
+      }).join('') + '<p class="oauth__or"><span>' + t('account.oauth.or') + '</span></p>';
+      box.hidden = false;
+      box.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-oauth]');
+        if (!b) return;
+        var p = b.getAttribute('data-oauth');
+        var name = t('account.oauth.providers.' + p);
+        setFormError(form, '');
+        b.disabled = true;
+        auth.signInWithProvider(p).catch(function (err) {
+          b.disabled = false;
+          setFormError(form, err.code === 'oauth_needs_hosting'
+            ? t('account.oauth.needsHosting', { provider: name })
+            : t('account.oauth.failed', { reason: auth.errorText(err) }));
+        });
+      });
     });
   }
 
@@ -464,6 +507,16 @@
   /* ---------- Запуск ---------- */
 
   if (!auth || !auth.enabled) { renderNotReady(); return; }
+
+  // Сервис входа вернул ошибку (например, покупатель нажал «Отмена»)
+  (function () {
+    var q = new URLSearchParams(window.location.search + '&' + window.location.hash.replace(/^#/, ''));
+    var desc = q.get('error_description');
+    if (desc) {
+      oauthError = desc.replace(/\+/g, ' ');
+      window.history.replaceState(null, '', 'account.html');
+    }
+  })();
 
   if (A.params.get('deleted')) {
     A.toast(t('account.remove.done'));

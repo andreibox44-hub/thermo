@@ -40,12 +40,17 @@ create policy "profiles: read own" on public.profiles
 create policy "profiles: update own" on public.profiles
   for update to authenticated using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
 
--- Профиль создаётся сам при регистрации; имя берётся из формы регистрации
+-- Профиль создаётся сам при регистрации (по почте или через Google, Apple и др.)
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
+  -- Имя: из формы регистрации (name) или от Google / Apple / Facebook / Microsoft (full_name)
   insert into public.profiles (id, name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'name', ''));
+  values (new.id, coalesce(
+    nullif(new.raw_user_meta_data ->> 'name', ''),
+    nullif(new.raw_user_meta_data ->> 'full_name', ''),
+    ''
+  ));
   return new;
 end;
 $$;
