@@ -15,7 +15,9 @@
   var FIELDS = ['country', 'region', 'city', 'postal_code', 'address', 'house', 'apartment', 'floor', 'building',
     'recipient_name', 'recipient_phone', 'company', 'vat_id', 'delivery_note'];
   var GEO_VERSION = 2; // увеличить после пересборки справочников (tools/build_geo.py)
-  var MAX_SUGGEST = 8;
+  var MAX_SUGGEST = 50;  // при вводе
+  var MAX_BROWSE = 600;  // при просмотре списка (все места региона)
+  var TOP_PLACES = 60;   // без региона — крупные места
 
   /* ---------- Справочники (GeoNames) ---------- */
 
@@ -97,15 +99,15 @@
     return (opts.title === false ? '' : '<h3 class="form__section field--wide">' + t('address.sections.place') + '</h3>') +
       '<div class="field field--wide">' + label(p + '-country', t('address.form.country'), true) +
         '<select class="input" id="' + p + '-country" name="country" autocomplete="country">' + C.options(C.fallback()) + '</select></div>' +
-      input(p, 'city', {
-        wide: true, required: true, autocomplete: 'off', placeholder: t('address.form.cityPlaceholder'),
-        cls: 'suggest-field', after: '<div class="suggest" id="' + p + '-city-suggest" role="listbox" hidden></div>'
-      }) +
       '<div class="field" data-region-field>' + label(regionId, t('address.form.region'), true) +
         '<select class="input" id="' + regionId + '" name="region" autocomplete="address-level1"></select>' +
         '<span class="field__error" data-error-for="region"></span></div>' +
+      input(p, 'city', {
+        required: true, autocomplete: 'off', placeholder: t('address.form.cityPlaceholder'),
+        cls: 'suggest-field', after: '<div class="suggest" id="' + p + '-city-suggest" role="listbox" hidden></div>'
+      }) +
       input(p, 'postal_code', { label: 'postalCode', required: true, autocomplete: 'postal-code' }) +
-      input(p, 'address', { label: 'street', required: true, wide: true, autocomplete: 'address-line1', placeholder: t('address.form.streetPlaceholder') }) +
+      input(p, 'address', { label: 'street', required: true, autocomplete: 'address-line1', placeholder: t('address.form.streetPlaceholder') }) +
       input(p, 'house', { required: true, placeholder: t('address.form.housePlaceholder') }) +
       input(p, 'apartment', { autocomplete: 'address-line2', placeholder: t('address.form.apartmentPlaceholder') }) +
       input(p, 'floor', { inputmode: 'numeric', placeholder: t('address.form.floorPlaceholder') }) +
@@ -203,10 +205,32 @@
 
     function regionName(pl) { return geo && pl.region >= 0 ? geo.regions[pl.region] : ''; }
 
+    function byName(x, y) { return x.key.localeCompare(y.key); }
+
+    function regionIndex() { return geo && el.region.value ? geo.regions.indexOf(el.region.value) : -1; }
+
+    /** Список как у выпадающего меню: все места выбранного региона по алфавиту, без региона — крупные места. */
+    function browsePlaces() {
+      if (!geo) return [];
+      var ri = regionIndex();
+      if (ri >= 0) {
+        // Сначала города региона (несколько индексов, по размеру), дальше все места по алфавиту
+        var inRegion = geo.places.filter(function (pl) { return pl.region === ri; });
+        var cities = inRegion.filter(function (pl) { return pl.codes.length >= 3; })
+          .sort(function (x, y) { return y.codes.length - x.codes.length; });
+        var rest = inRegion.filter(function (pl) { return cities.indexOf(pl) === -1; }).sort(byName);
+        return cities.concat(rest).slice(0, MAX_BROWSE);
+      }
+      // Крупные места — у них несколько индексов (у сёл обычно один)
+      var big = geo.places.filter(function (pl) { return pl.codes.length >= 3; });
+      return big.sort(function (x, y) { return y.codes.length - x.codes.length; }).slice(0, TOP_PLACES).sort(byName);
+    }
+
     function findPlaces(q) {
       var key = norm(q);
-      if (!geo || key.length < 2) return [];
-      var regionIdx = el.region.value && geo ? geo.regions.indexOf(el.region.value) : -1;
+      if (!geo) return [];
+      if (!key) return browsePlaces();
+      var regionIdx = regionIndex();
       var starts = [], contains = [];
       for (var i = 0; i < geo.places.length; i++) {
         var pl = geo.places[i];
@@ -237,6 +261,18 @@
       }).join('');
       suggestBox.hidden = false;
       el.city.setAttribute('aria-expanded', 'true');
+      var cur = suggestBox.querySelector('.is-active');
+      if (cur) cur.scrollIntoView({ block: 'nearest' });
+    }
+
+    // Открыть список целиком (по клику или стрелке вниз); текущий город — выделен
+    function openList(fromKeyboard) {
+      if (!geo) return;
+      shown = browsePlaces();
+      var cityKey = norm(el.city.value);
+      active = shown.findIndex(function (pl) { return pl.key === cityKey; });
+      if (active < 0 && fromKeyboard === true) active = 0;
+      renderSuggest();
     }
     function closeSuggest() {
       suggestBox.hidden = true;
@@ -263,8 +299,13 @@
     el.city.setAttribute('aria-controls', suggestBox.id);
     el.city.setAttribute('aria-expanded', 'false');
     el.city.addEventListener('input', function () { active = -1; shown = findPlaces(el.city.value); renderSuggest(); });
+    el.city.addEventListener('focus', function () { openList(); });
+    el.city.addEventListener('click', function () { if (suggestBox.hidden) openList(); });
     el.city.addEventListener('keydown', function (e) {
-      if (suggestBox.hidden) return;
+      if (suggestBox.hidden) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); openList(true); }
+        return;
+      }
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
         active = (active + (e.key === 'ArrowDown' ? 1 : -1) + shown.length) % shown.length;
@@ -281,6 +322,15 @@
     suggestBox.addEventListener('click', function (e) {
       var b = e.target.closest('[data-i]');
       if (b) pickPlace(shown[+b.getAttribute('data-i')]);
+    });
+
+    form.addEventListener('change', function (e) {
+      if (e.target.name !== 'region') return;
+      var ri = regionIndex();
+      var cityKey = norm(el.city.value);
+      if (!geo || !cityKey || ri < 0) return;
+      var inRegion = geo.places.some(function (pl) { return pl.key === cityKey && pl.region === ri; });
+      if (!inRegion) { el.city.value = ''; el.postal_code.value = ''; hint('postal_code', ''); }
     });
 
     /* Индекс → город и регион */

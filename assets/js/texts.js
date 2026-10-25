@@ -64,7 +64,7 @@ window.TEXTS = {
       form: {
         country: 'Страна',
         city: 'Город или населённый пункт',
-        cityPlaceholder: 'Начните вводить — подскажем',
+        cityPlaceholder: 'Выберите или начните вводить',
         region: 'Регион',
         regionChoose: '— выберите —',
         postalCode: 'Почтовый индекс',
