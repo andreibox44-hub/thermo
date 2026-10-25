@@ -24,6 +24,12 @@
   /* ---------- Характеристики ---------- */
 
   function has(v) { return v !== undefined && v !== null; }
+  // Габариты: [ширина, высота, глубина]; если порядок не подтверждён — просто числа
+  function dimensionsLabel(x) {
+    var d = x.dimensions;
+    if (x.dimensionsLabeled === false) return t('units.mm', { value: d.join(' × ') });
+    return t('units.dimensions', { w: d[0], h: d[1], d: d[2] });
+  }
   var celsius = has(p.range) ? t('units.celsius', { from: p.range[0], to: p.range[1] }) : null;
   var cycles = has(p.cycles) ? t('units.cycles', { value: A.formatNumber(p.cycles) }) : null;
   var years = has(p.lifetime) ? t('units.years', { from: p.lifetime[0], to: p.lifetime[1] }) : null;
@@ -42,7 +48,7 @@
     ['power', has(p.power) && A.formatPower(p.power)],
     ['current', current],
     ['consumption', has(p.consumption) && A.formatConsumption(p.consumption)],
-    ['dimensions', has(p.dimensions) ? t('units.mm', { value: p.dimensions.join('×') }) : heater && t('common.tbd')],
+    ['dimensions', has(p.dimensions) ? dimensionsLabel(p) : heater && t('common.tbd')],
     ['weight', has(p.weight) ? t('units.kg', { value: A.formatNumber(p.weight) }) : heater && t('common.tbd')],
     ['body', has(p.body) && t('specValues.body.' + p.body)],
     ['control', has(p.control) && t('specValues.control.' + p.control)],

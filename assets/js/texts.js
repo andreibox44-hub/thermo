@@ -271,6 +271,7 @@ window.TEXTS = {
       a: '{value} А',
       kg: '{value} кг',
       mm: '{value} мм',
+      dimensions: 'Ш {w} × В {h} × Г {d} мм',
       supply: '{voltage} В, {frequency} Гц',
       years: '{from}–{to} лет',
       cycles: '{value} циклов',

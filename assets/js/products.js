@@ -5,7 +5,9 @@
  * price — в валюте из texts.js → meta.currency, с НДС; 0 означает «цена уточняется».
  *   Сейчас цены примерные (по сравнению с конкурентами в RO/IT/DE, 2026-10-25) — потом заменить.
  * power и consumption — в ваттах (consumption — среднее потребление, Вт/ч).
- * dimensions — габариты в мм, weight — кг, area — м² (null — «уточняется»),
+ * dimensions — габариты в мм: [ширина, высота, глубина] (на странице «Ш × В × Г»;
+ *   у радиаторов высота 570 — одинаковая, ширина растёт с числом секций — как в паспорте ВЭСТ ПКНА),
+ *   dimensionsLabeled: false — порядок не подтверждён, числа без подписей. weight — кг, area — м² (null — «уточняется»),
  * volume — объём помещения, м³ (из карточек производителя).
  * current — номинальный ток, А. sections — число секций радиатора.
  * warnings — предупреждения на странице товара (тексты в texts.js → warnings).
@@ -30,7 +32,8 @@ window.HEATER_COMMON = {
 window.CATEGORY_COMMON = {
   floor: { deviceType: 'condensedSteam', certs: ['ce'], eco: true },
   ventilated: { deviceType: 'condensedSteam', certs: ['ce'], eco: true },
-  inFloor: { deviceType: 'condensedSteam', eco: true },
+  /* у встраиваемых габариты пока как у напольных — какое число что значит, не подтверждено */
+  inFloor: { deviceType: 'condensedSteam', eco: true, dimensionsLabeled: false },
   aluminum: { deviceType: 'condensedSteam', certs: ['ce'], eco: true, body: 'aluminum', control: 'electronic',
     voltage: 220, frequency: 50, network: 'single', lifetime: [30, 50], ceiling: 2.8, features: ['thermostat'] }
 };
@@ -67,19 +70,19 @@ window.PRODUCTS = [
   /* Алюминиевые радиаторы. Данные — с карточек производителя; у ПКН-3-1.6-16
      карточки нет: площадь — от заказчика, объём и потребление уточняются */
   { id: 'pkn-3-0-42-4', type: 'aluminum', price: 109, order: 10, sections: 4, power: 420, current: 1.9,
-    area: 6, volume: 15, consumption: 85, dimensions: [570, 380, 100], weight: 5.7 },
+    area: 6, volume: 15, consumption: 85, dimensions: [380, 570, 100], weight: 5.7 },
   { id: 'pkn-3-0-6-6', type: 'aluminum', price: 139, order: 11, sections: 6, power: 600, current: 2.7,
-    area: 8, volume: 20, consumption: 100, dimensions: [570, 520, 100], weight: 7.7 },
+    area: 8, volume: 20, consumption: 100, dimensions: [520, 570, 100], weight: 7.7 },
   { id: 'pkn-3-0-85-8', type: 'aluminum', price: 169, order: 12, sections: 8, power: 850, current: 3.9,
-    area: 12, volume: 30, consumption: 150, dimensions: [570, 660, 100], weight: 11.2 },
+    area: 12, volume: 30, consumption: 150, dimensions: [660, 570, 100], weight: 11.2 },
   { id: 'pkn-3-1-0-10', type: 'aluminum', price: 209, order: 13, sections: 10, power: 1000, current: 4.5,
-    area: 14, volume: 35, consumption: 170, dimensions: [570, 820, 100], weight: 13.4 },
+    area: 14, volume: 35, consumption: 170, dimensions: [820, 570, 100], weight: 13.4 },
   { id: 'pkn-3-1-2-12', type: 'aluminum', price: 239, order: 14, sections: 12, power: 1200, current: 5.5,
-    area: 16, volume: 40, consumption: 200, dimensions: [570, 960, 100], weight: 16.5 },
+    area: 16, volume: 40, consumption: 200, dimensions: [960, 570, 100], weight: 16.5 },
   { id: 'pkn-3-1-4-14', type: 'aluminum', price: 269, order: 15, sections: 14, power: 1400, current: 6.4,
-    area: 18, volume: 47, consumption: 285, dimensions: [570, 1110, 100], weight: 18.6 },
+    area: 18, volume: 47, consumption: 285, dimensions: [1110, 570, 100], weight: 18.6 },
   { id: 'pkn-3-1-6-16', type: 'aluminum', price: 299, order: 16, sections: 16, power: 1600, current: 7.3,
-    area: 20, dimensions: [570, 1240, 100], weight: 22.1 },
+    area: 20, dimensions: [1240, 570, 100], weight: 22.1 },
 
   /* Аксессуары */
   { id: 'control-unit', type: 'accessory', price: 39, order: 20,
