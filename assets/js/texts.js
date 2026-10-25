@@ -189,6 +189,7 @@ window.TEXTS = {
         ctaSecondary: 'Подобрать по площади',
         tempValue: 'Wi‑Fi',
         tempLabel: 'управление со смартфона',
+        slideAria: 'Показать {name}',
         stats: [
           { value: '30–50 лет', label: 'срок службы' },
           { value: 'до 200 м²', label: 'площадь обогрева' },
