@@ -130,7 +130,10 @@
     /** Удаляет аккаунт на сервере и сессию в браузере; после этого страницу нужно перезагрузить. */
     deleteAccount: function () {
       return client.rpc('delete_account').then(unwrap).then(function () {
-        // Не signOut: пользователя уже нет, и сервер ответил бы 403
+        // Пользователя уже нет: сервер ответит на выход ошибкой 403, библиотека её пропускает
+        // и всё равно забывает сессию — иначе она осталась бы в памяти страницы
+        return client.auth.signOut({ scope: 'local' }).catch(function () {});
+      }).then(function () {
         try { window.localStorage.removeItem(STORAGE_KEY); } catch (e) { /* нет доступа к хранилищу */ }
         forgetFavorites();
       });

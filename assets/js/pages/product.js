@@ -102,7 +102,7 @@
         A.warningBlock(p) +
         '<div class="buy">' +
           '<div class="buy__price">' + A.priceBlock(p, 'price--lg') +
-            (p.price > 0 ? '' : '<p class="buy__note">' + t('product.priceNote') + '</p>') + '</div>' +
+            '<p class="buy__note">' + t(p.price > 0 ? 'common.vatIncluded' : 'product.priceNote') + '</p>' + '</div>' +
           '<div class="buy__actions">' + A.stepper(1, 'id="qty"') + A.addButton(p, 'btn--lg buy__btn') + '</div>' +
           A.favButton(p, true) +
           '<ul class="buy__perks">' + t('product.perks').map(function (txt, i) {
