@@ -26,7 +26,7 @@ https://github.com/andreibox44-hub/thermo (ветка `main`).
   как «уточняется» / «Цена уточняется». Цена `0` = «Цена уточняется», `area: null` = «Площадь
   уточняется». Характеристики, которые не заданы у товара, на странице не показываются.
 - **После изменений загружать на GitHub** (`git add -A`, коммит, `git push` в `main`).
-- **Кэш браузера.** CSS и JS подключаются с номером версии (`style.css?v=18`). После изменения
+- **Кэш браузера.** CSS и JS подключаются с номером версии (`style.css?v=19`). После изменения
   CSS/JS увеличить `?v=` во всех `*.html`; после замены фото — `IMAGE_VERSION` в `products.js`.
   Иначе браузер покажет старую версию.
 - После правок проверять сайт в браузере на ширине компьютера и телефона (~390 px): без ошибок
@@ -104,11 +104,11 @@ supabase/setup.sql          — таблицы profiles и orders, правил�
   После входа — меню разделов (адрес `account.html#раздел`): «Мои данные» (имя, телефон, почта,
   «Удалить аккаунт»), «Адрес доставки», «Избранное»,
   «Мои заказы» (номер, дата, статус, товары), «Выйти». На телефоне меню — полоска вкладок.
-- Вход через Google, Apple, Facebook, Microsoft: кнопки над формой входа/регистрации
-  (`account.js → renderOAuth`, `auth.js → providers / signInWithProvider`). Сайт спрашивает у Supabase
-  (`/auth/v1/settings`), какие сервисы включены, и показывает только их — сейчас не включён ни один,
-  кнопок нет. Имя от сервиса (`full_name`) попадает в профиль. Работает только на хостинге (http/https):
-  с файла с диска — сообщение «заработает на хостинге». Ошибка/отмена входа показывается под формой.
+- Вход через Google: кнопка над формой входа/регистрации (`account.js → renderOAuth`,
+  `auth.js → providers / signInWithProvider`; список сервисов — `OAUTH_ORDER`, сейчас только google).
+  Сайт спрашивает у Supabase (`/auth/v1/settings`), включён ли Google, и только тогда показывает
+  кнопку — сейчас не включён, кнопки нет. Имя из Google (`full_name`) попадает в профиль. Работает
+  только на хостинге (http/https): с файла с диска — сообщение «заработает на хостинге».
 - Избранное: сердечко на карточках и на странице товара, счётчик в шапке (на телефоне — пункт
   в меню). Хранится в браузере (`thermo.favorites`); после входа объединяется с аккаунтом
   (`profiles.favorites`) и дальше сохраняется туда. Без входа видно под формой входа.
@@ -148,22 +148,15 @@ supabase/setup.sql          — таблицы profiles и orders, правил�
 - Настоящие фото товаров в хорошем качестве (сейчас вырезаны из карточек, ~300 px; фото
   ПКН-3-1.6-16 и алюминиевых собраны из одного снимка). Заменить файлы в `assets/img/products/`.
 - Хостинг сайта.
-- Вход через Google/Apple и др. (после хостинга). Адрес возврата у всех сервисов один:
-  `https://mjemowyqkroihrbbccux.supabase.co/auth/v1/callback`. Включается в Supabase:
-  Authentication → Sign In / Providers → нужный сервис → вставить ключи → кнопка появится сама.
-  - Google: Google Cloud Console → Google Auth Platform: экран согласия (название Glowden, почта,
-    домен сайта), затем Clients → Web application: Authorized JavaScript origins — адрес сайта,
-    Authorized redirect URIs — адрес возврата выше. Client ID и Client secret → в Supabase.
-  - Apple: нужен платный Apple Developer (99 $ в год). Identifiers: App ID с «Sign in with Apple»
-    и Services ID (это Client ID) с доменом сайта и адресом возврата; Keys: ключ с «Sign in with Apple»
-    (.p8, Key ID, Team ID). В Supabase секрет генерируется из ключа и действует 6 месяцев — продлевать.
-  - Microsoft: Azure Portal → App registrations → новое приложение, Redirect URI — адрес возврата;
-    Certificates & secrets → client secret (у него срок). В Supabase: Application ID, секрет,
-    Tenant URL `https://login.microsoftonline.com/common` (личные и рабочие аккаунты).
-  - Facebook: Meta for Developers → приложение с Facebook Login, Valid OAuth Redirect URIs — адрес
-    возврата; для всех пользователей нужна проверка приложения (и бизнеса) в Meta.
+- Вход через Google (после хостинга):
+  1. Google Cloud Console → Google Auth Platform: экран согласия (название Glowden, почта поддержки,
+     домен сайта, ссылки на политику конфиденциальности и условия), опубликовать.
+  2. Clients → Create client → Web application: Authorized JavaScript origins — адрес сайта;
+     Authorized redirect URIs — `https://mjemowyqkroihrbbccux.supabase.co/auth/v1/callback`.
+  3. Supabase → Authentication → Sign In / Providers → Google: включить, вставить Client ID и
+     Client secret. Кнопка на сайте появится сама.
 - Supabase после хостинга: указать адрес сайта в Authentication → URL Configuration: Site URL и Redirect URLs
-  (`https://<сайт>/**`) — иначе не откроются ссылки из писем «Забыли пароль?» и не вернёт вход через Google/Apple, подключить свою почту (SMTP — встроенная отправляет
+  (`https://<сайт>/**`) — иначе не откроются ссылки из писем «Забыли пароль?» и не вернёт вход через Google, подключить свою почту (SMTP — встроенная отправляет
   всего несколько писем в час) и снова включить «Confirm email».
 - Узнать регион проекта Supabase (Project Settings → General) и вписать его в политику
   конфиденциальности (`texts.js → legal.docs.privacy`, раздел 5, сейчас «уточняется»).

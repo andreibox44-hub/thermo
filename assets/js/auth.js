@@ -37,8 +37,8 @@
     return A.t('account.errors.generic');
   }
 
-  // Вход через сторонние сервисы — в этом порядке; кнопки видны только у включённых в Supabase
-  var OAUTH_ORDER = ['google', 'apple', 'facebook', 'azure'];
+  // Вход через сторонние сервисы (сейчас только Google); кнопка видна, только если сервис включён в Supabase
+  var OAUTH_ORDER = ['google'];
   var providersPromise = null;
 
   A.auth = {
@@ -68,7 +68,7 @@
       }
       return client.auth.signInWithOAuth({
         provider: provider,
-        options: { redirectTo: returnUrl(), scopes: provider === 'azure' ? 'email' : undefined }
+        options: { redirectTo: returnUrl() }
       }).then(unwrap);
     },
     recovery: recovery,
