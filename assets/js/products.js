@@ -86,7 +86,10 @@ window.PRODUCTS = [
 
   /* Аксессуары */
   { id: 'control-unit', type: 'accessory', price: 39, order: 20,
-    cycles: 50000, range: [0, 30] }
+    cycles: 50000, range: [0, 30] },
+  /* Wi‑Fi блок управления — с рекламной карточки: Wi‑Fi, приложение Tuya / Smart Life, 0…+35 °C */
+  { id: 'wifi-control-unit', type: 'accessory', price: 0, order: 21,
+    range: [0, 35], features: ['wifi', 'app'] }
 ];
 
 // Подмешиваем общие характеристики категорий и серии

@@ -83,7 +83,7 @@
     .slice(0, 4);
 
   var perkIcons = ['truck', 'shield'];
-  var featureIcons = { metal: 'shield', touch: 'touch', wifi: 'wifi', fan: 'fan', thermostat: 'thermo' };
+  var featureIcons = { metal: 'shield', touch: 'touch', wifi: 'wifi', fan: 'fan', thermostat: 'thermo', app: 'wifi' };
 
   root.innerHTML =
     A.breadcrumbs([
